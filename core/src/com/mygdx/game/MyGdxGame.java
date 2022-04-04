@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
@@ -23,10 +22,13 @@ public class MyGdxGame extends ApplicationAdapter {
 	Texture texture;
 	Pixmap pixmap;
 	ShapeDrawer drawer;
-	ShapeRenderer shapeRenderer;
 	Texture img;
-	ArrayList<FlatBody> bodyList;
+
+	ArrayList<FlatBody> circleBodyList;
+	ArrayList<FlatBody> boxBodyList;
 	ArrayList<Color> colorList;
+
+	// cache move direction instead of creating new object everytime
 	FlatVector moveDirection;
 
 	@Override
@@ -34,10 +36,12 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 1920, 1080);
-		shapeRenderer = new ShapeRenderer();
+
 		initializeDrawer();
 
-		initializeList();
+		initializeCircleList();
+
+		initializeBoxList();
 	}
 
 
@@ -51,24 +55,21 @@ public class MyGdxGame extends ApplicationAdapter {
 		float deltaY = 0f;
 		float speed  = 8f;
 
-		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) 	deltaX--;
-		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) 	deltaX++;
-		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) 	deltaY--;
-		if(Gdx.input.isKeyPressed(Input.Keys.UP)) 		deltaY++;
+//		circleMove(deltaX, deltaY, speed);
+//
+//		circleCollide();
+//
+//		drawCircleList();
 
-		if(deltaX != 0f || deltaY != 0f) {
-			moveDirection.setFlatVector(deltaX, deltaY);
-			FlatVector direction = FlatMath.normalize(moveDirection);
-			FlatVector velocity  = FlatVector.multiply(direction, speed);
-			bodyList.get(0).move(velocity);
-		}
+		boxMove(deltaX, deltaY, speed);
 
-		collide();
+		boxCollide();
 
-		drawList();
+		drawBoxList();
 
 		batch.end();
 	}
+
 
 	@Override
 	public void dispose () {
@@ -87,10 +88,10 @@ public class MyGdxGame extends ApplicationAdapter {
 		drawer = new ShapeDrawer(batch, region);
 	}
 
-	private void initializeList() {
+	private void initializeCircleList() {
 		moveDirection = new FlatVector(0f, 0f);
 		colorList = new ArrayList<>();
-		bodyList = new ArrayList<>();
+		circleBodyList = new ArrayList<>();
 
 		float totalHeight = camera.viewportHeight;
 		float totalWidth = camera.viewportWidth;
@@ -98,19 +99,50 @@ public class MyGdxGame extends ApplicationAdapter {
 		for (int i = 0; i < 1000; i++) {
 			FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
 //			System.out.println(center);
-			bodyList.add(FlatBody.createCircleBody(20f, center, 2f, false, 0.5f));
+			circleBodyList.add(FlatBody.createCircleBody(20f, center, 2f, false, 0.5f));
 
 			colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
 		}
 	}
 
-	private void collide() {
-		for (int i = 0; i < this.bodyList.size() - 1; i++) {
+	private void initializeBoxList() {
+		moveDirection = new FlatVector(0f, 0f);
+		colorList = new ArrayList<>();
+		boxBodyList = new ArrayList<>();
 
-			FlatBody bodyA = this.bodyList.get(i);
+		float totalHeight = camera.viewportHeight;
+		float totalWidth = camera.viewportWidth;
 
-			for (int j = i + 1; j < this.bodyList.size(); j++) {
-				FlatBody bodyB = this.bodyList.get(j);
+		for (int i = 0; i < 10; i++) {
+			FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
+//			System.out.println(center);
+			boxBodyList.add(FlatBody.createBoxBody(20f, 20f, center, 2f, false, 0.5f));
+
+			colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
+		}
+	}
+
+	private void circleMove(float deltaX, float deltaY, float speed) {
+		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) 	deltaX--;
+		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) 	deltaX++;
+		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) 	deltaY--;
+		if(Gdx.input.isKeyPressed(Input.Keys.UP)) 		deltaY++;
+
+		if(deltaX != 0f || deltaY != 0f) {
+			moveDirection.setFlatVector(deltaX, deltaY);
+			FlatVector direction = FlatMath.normalize(moveDirection);
+			FlatVector velocity  = FlatVector.multiply(direction, speed);
+			circleBodyList.get(0).move(velocity);
+		}
+	}
+
+	private void circleCollide() {
+		for (int i = 0; i < this.circleBodyList.size() - 1; i++) {
+
+			FlatBody bodyA = this.circleBodyList.get(i);
+
+			for (int j = i + 1; j < this.circleBodyList.size(); j++) {
+				FlatBody bodyB = this.circleBodyList.get(j);
 
 				float depth = Collisions.getIntersectCirclesDepth(
 							bodyA.getPosition(), bodyA.getRadius(),
@@ -125,26 +157,58 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 	}
 
-	private void drawList() {
+	private void drawCircleList() {
 
-
-		for (int i = 0; i < this.bodyList.size(); i++) {
-			FlatBody body = this.bodyList.get(i);
+		for (int i = 0; i < this.circleBodyList.size(); i++) {
+			FlatBody body = this.circleBodyList.get(i);
 
 			float x = body.getPosition().getX();
 			float y = body.getPosition().getY();
 
-			if(body.getShapeType() == FlatBody.CIRCLE_SHAPE) {
+			drawer.setColor(Color.WHITE);
+			drawer.filledCircle(x, y, body.getRadius());
 
-				drawer.setColor(Color.WHITE);
-				drawer.filledCircle(x, y, body.getRadius());
+			drawer.setColor(this.colorList.get(i));
+			drawer.filledCircle(x, y, body.getRadius() - 2);
 
-				drawer.setColor(this.colorList.get(i));
-				drawer.filledCircle(x, y, body.getRadius() - 2);
-
-			}
 		}
 
+	}
+
+
+	private void boxMove(float deltaX, float deltaY, float speed) {
+		for (int i = 0; i < this.boxBodyList.size(); i++) {
+			FlatBody body = this.boxBodyList.get(i);
+
+			body.rotate((float) Math.PI / 100f);
+		}
+	}
+
+	private void boxCollide() {}
+
+	private void drawBoxList() {
+		for (int i = 0; i < this.boxBodyList.size(); i++) {
+			FlatBody body = this.boxBodyList.get(i);
+
+			float[] v = toFloatArray(body.getTransformedVertices());
+			drawer.setColor(this.colorList.get(i));
+			drawer.polygon(v);
+
+			drawer.setColor(Color.WHITE);
+			drawer.filledPolygon(v, body.getTriangles());
+
+
+		}
+	}
+
+	private float[] toFloatArray(FlatVector[] vertices) {
+		float[] array = new float[vertices.length * 2];
+
+		for (int i = 0, j = 0; i < array.length - 1 && j < vertices.length; i+=2, j++) {
+			array[i] = vertices[j].getX();
+			array[i + 1] = vertices[j].getY();
+		}
+		return array;
 	}
 
 }

@@ -53,6 +53,21 @@ public class FlatVector {
         return this;
     }
 
+    public FlatVector transform(FlatTransform t) {
+        // rotation first, then translate
+
+        // https://matthew-brett.github.io/teaching/rotation_2d.html
+        // x2=cosβx1−sinβy1
+        // y2=sinβx1+cosβy1
+        this.x = t.getCos() * this.x - t.getSin() * this.y;
+        this.y = t.getSin() * this.x + t.getCos() * this.y;
+
+        this.x = this.x + t.getX();
+        this.y = this.y + t.getY();
+
+        return this;
+    }
+
     public void setFlatVector(float x, float y) {
         this.x = x;
         this.y = y;
@@ -78,7 +93,7 @@ public class FlatVector {
         return new FlatVector(a.x / scale, a.y / scale);
     }
 
-    public static FlatVector Transform(FlatVector v, FlatTransform t) {
+    public static FlatVector transform(FlatVector v, FlatTransform t) {
         // rotation first, then translate
 
         // https://matthew-brett.github.io/teaching/rotation_2d.html

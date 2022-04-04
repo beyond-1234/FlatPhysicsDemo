@@ -29,7 +29,7 @@ public class FlatBody {
     private FlatVector[]    vertices;
     // rect need to be divided int triangles inorder to work properly
     // here stores the order of triangles by storing the vertex in order grouped by three vertices
-    private int[]    triangles;
+    private short[]         triangles;
 
     private int             shapeType;
 
@@ -105,8 +105,8 @@ public class FlatBody {
         return vertices;
     }
 
-    private int[] createTrisVerticesOrder() {
-        int[] tris = new int[6];
+    private static short[] createTrisVerticesOrder() {
+        short[] tris = new short[6];
         tris[0] = 0;
         tris[1] = 1;
         tris[2] = 2;
@@ -114,6 +114,17 @@ public class FlatBody {
         tris[4] = 2;
         tris[5] = 3;
         return tris;
+    }
+
+    public FlatVector[] getTransformedVertices() {
+        FlatTransform transform = new FlatTransform(this.position, this.rotation);
+
+        for(int i = 0; i < this.vertices.length; i++)
+        {
+            this.vertices[i].transform(transform);
+        }
+
+        return this.vertices;
     }
 
     public void move(FlatVector amount) {
@@ -166,6 +177,8 @@ public class FlatBody {
         FlatBody body = createFlatBody(area, mass, position, density, isStatic, restitution, BOX_SHAPE);
         body.width = width;
         body.height = height;
+        body.vertices = createBoxVertices(width, height);
+        body.triangles = createTrisVerticesOrder();
         return body;
     }
 
@@ -187,6 +200,22 @@ public class FlatBody {
 
     public float getRadius() {
         return radius;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public FlatVector[] getVertices() {
+        return vertices;
+    }
+
+    public short[] getTriangles() {
+        return triangles;
     }
 
     public int getShapeType() {
