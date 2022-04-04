@@ -27,6 +27,7 @@ public class FlatBody {
 
     // rect and polygon need vertex info to detect collision
     private FlatVector[]    vertices;
+    private FlatVector[]    transformedVertices;
     // rect need to be divided int triangles inorder to work properly
     // here stores the order of triangles by storing the vertex in order grouped by three vertices
     private short[]         triangles;
@@ -86,6 +87,7 @@ public class FlatBody {
         this.width = width;
         this.height = height;
         this.vertices = createBoxVertices(width, height);
+        this.transformedVertices = new FlatVector[vertices.length];
         this.triangles = createTrisVerticesOrder();
     }
 
@@ -121,10 +123,11 @@ public class FlatBody {
 
         for(int i = 0; i < this.vertices.length; i++)
         {
-            this.vertices[i].transform(transform);
+            FlatVector v = this.vertices[i];
+            this.transformedVertices[i] = FlatVector.transform(v, transform);
         }
 
-        return this.vertices;
+        return this.transformedVertices;
     }
 
     public void move(FlatVector amount) {
@@ -178,6 +181,7 @@ public class FlatBody {
         body.width = width;
         body.height = height;
         body.vertices = createBoxVertices(width, height);
+        body.transformedVertices = new FlatVector[body.vertices.length];
         body.triangles = createTrisVerticesOrder();
         return body;
     }
