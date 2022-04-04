@@ -7,7 +7,7 @@ import java.util.Objects;
 public class FlatVector {
     private float x;
     private float y;
-    private static FlatVector Zero = new FlatVector(0f, 0f);
+    private static final FlatVector Zero = new FlatVector(0f, 0f);
 
     public FlatVector() {
         this.x = 0f;
@@ -78,6 +78,20 @@ public class FlatVector {
         return new FlatVector(a.x / scale, a.y / scale);
     }
 
+    public static FlatVector Transform(FlatVector v, FlatTransform t) {
+        // rotation first, then translate
+
+        // https://matthew-brett.github.io/teaching/rotation_2d.html
+        // x2=cosβx1−sinβy1
+        // y2=sinβx1+cosβy1
+        float rx = t.getCos() * v.x - t.getSin() * v.y;
+        float ry = t.getSin() * v.x + t.getCos() * v.y;
+
+        float tx = rx + t.getX();
+        float ty = ry + t.getY();
+
+        return new FlatVector(tx, ty);
+    }
 
     public float getX() {
         return x;

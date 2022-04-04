@@ -25,6 +25,12 @@ public class FlatBody {
     private float           width;
     private float           height;
 
+    // rect and polygon need vertex info to detect collision
+    private FlatVector[]    vertices;
+    // rect need to be divided int triangles inorder to work properly
+    // here stores the order of triangles by storing the vertex in order grouped by three vertices
+    private int[]    triangles;
+
     private int             shapeType;
 
     private FlatBody() {
@@ -34,6 +40,7 @@ public class FlatBody {
                      float density, float mass, float restitution, float area,
                      boolean isStatic, float radius, float width, float height, int shapeType) {
         this();
+
         this.position = position;
         this.linearVelocity = linearVelocity;
         this.rotation = rotation;
@@ -52,6 +59,7 @@ public class FlatBody {
     public FlatBody(FlatVector position, float density, float mass, float restitution, float area,
                     boolean isStatic, int shapeType) {
         this();
+
         this.position = position;
         this.density = density;
         this.mass = mass;
@@ -61,12 +69,63 @@ public class FlatBody {
         this.shapeType = shapeType;
     }
 
+
+    public FlatBody(float radius, FlatVector position,  float density,
+                    float mass, float restitution, float area,
+                    boolean isStatic) {
+        this(position, density, mass, restitution, area, isStatic, CIRCLE_SHAPE);
+
+        this.radius = radius;
+    }
+
+    public FlatBody(float width, float height, FlatVector position,
+                    float density, float mass, float restitution, float area,
+                    boolean isStatic) {
+        this(position, density, mass, restitution, area, isStatic, BOX_SHAPE);
+
+        this.width = width;
+        this.height = height;
+        this.vertices = createBoxVertices(width, height);
+        this.triangles = createTrisVerticesOrder();
+    }
+
+    // create an array of vertices for a box centered by origin
+    private static FlatVector[] createBoxVertices(float width, float height) {
+        float left   = -width  / 2f;
+        float right  = left    + width;
+        float bottom = -height / 2f;
+        float top    = bottom  + height;
+
+        FlatVector[] vertices = new FlatVector[4];
+        vertices[0] = new FlatVector(left, top);
+        vertices[1] = new FlatVector(right, top);
+        vertices[2] = new FlatVector(right, bottom);
+        vertices[3] = new FlatVector(left, bottom);
+
+        return vertices;
+    }
+
+    private int[] createTrisVerticesOrder() {
+        int[] tris = new int[6];
+        tris[0] = 0;
+        tris[1] = 1;
+        tris[2] = 2;
+        tris[3] = 0;
+        tris[4] = 2;
+        tris[5] = 3;
+        return tris;
+    }
+
     public void move(FlatVector amount) {
         this.position.add(amount);
     }
 
     public void moveTo(FlatVector pos) {
         this.position = pos;
+    }
+
+    public void rotate(float amount) {
+        this.rotation += amount;
     }
 
     public static FlatBody createFlatBody(float area, float mass, FlatVector position, float density,
