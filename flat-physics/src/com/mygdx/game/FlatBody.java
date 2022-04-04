@@ -28,6 +28,7 @@ public class FlatBody {
     // rect and polygon need vertex info to detect collision
     private FlatVector[]    vertices;
     private FlatVector[]    transformedVertices;
+    private boolean         doesVerticesRequireUpdate;
     // rect need to be divided int triangles inorder to work properly
     // here stores the order of triangles by storing the vertex in order grouped by three vertices
     private short[]         triangles;
@@ -71,28 +72,28 @@ public class FlatBody {
     }
 
 
-    public FlatBody(float radius, FlatVector position,  float density,
-                    float mass, float restitution, float area,
-                    boolean isStatic) {
-        this(position, density, mass, restitution, area, isStatic, CIRCLE_SHAPE);
-
-        this.radius = radius;
-    }
-
-    public FlatBody(float width, float height, FlatVector position,
-                    float density, float mass, float restitution, float area,
-                    boolean isStatic) {
-        this(position, density, mass, restitution, area, isStatic, BOX_SHAPE);
-
-        this.width = width;
-        this.height = height;
-        this.vertices = createBoxVertices(width, height);
-        this.transformedVertices = new FlatVector[vertices.length];
-        this.triangles = createTrisVerticesOrder();
-    }
+//    public FlatBody(float radius, FlatVector position,  float density,
+//                    float mass, float restitution, float area,
+//                    boolean isStatic) {
+//        this(position, density, mass, restitution, area, isStatic, CIRCLE_SHAPE);
+//
+//        this.radius = radius;
+//    }
+//
+//    public FlatBody(float width, float height, FlatVector position,
+//                    float density, float mass, float restitution, float area,
+//                    boolean isStatic) {
+//        this(position, density, mass, restitution, area, isStatic, BOX_SHAPE);
+//
+//        this.width = width;
+//        this.height = height;
+//        this.vertices = createBoxVertices(width, height);
+//        this.transformedVertices = new FlatVector[vertices.length];
+//        this.triangles = createTrisVerticesOrder();
+//    }
 
     // create an array of vertices for a box centered by origin
-    private static FlatVector[] createBoxVertices(float width, float height) {
+    private static FlatVector[] createBoxVerticesAtOrigin(float width, float height) {
         float left   = -width  / 2f;
         float right  = left    + width;
         float bottom = -height / 2f;
@@ -118,28 +119,41 @@ public class FlatBody {
         return tris;
     }
 
+    // calculate and cache actual vertices with position and rotation
+    // when we actually need to use these vertices
     public FlatVector[] getTransformedVertices() {
-        FlatTransform transform = new FlatTransform(this.position, this.rotation);
+        if(this.doesVerticesRequireUpdate) {
+            FlatTransform transform = new FlatTransform(this.position, this.rotation);
 
-        for(int i = 0; i < this.vertices.length; i++)
-        {
-            FlatVector v = this.vertices[i];
-            this.transformedVertices[i] = FlatVector.transform(v, transform);
+            for (int i = 0; i < this.vertices.length; i++) {
+                FlatVector v = this.vertices[i];
+                this.transformedVertices[i] = FlatVector.transform(v, transform);
+            }
         }
+
+        this.doesVerticesRequireUpdate = false;
 
         return this.transformedVertices;
     }
 
     public void move(FlatVector amount) {
         this.position.add(amount);
+        this.doesVerticesRequireUpdate = true;
     }
 
     public void moveTo(FlatVector pos) {
         this.position = pos;
+        this.doesVerticesRequireUpdate = true;
     }
 
     public void rotate(float amount) {
         this.rotation += amount;
+        this.doesVerticesRequireUpdate = true;
+    }
+
+    public void rotateTo(float rotation) {
+        this.rotation = rotation;
+        this.doesVerticesRequireUpdate = true;
     }
 
     public static FlatBody createFlatBody(float area, float mass, FlatVector position, float density,
@@ -180,9 +194,11 @@ public class FlatBody {
         FlatBody body = createFlatBody(area, mass, position, density, isStatic, restitution, BOX_SHAPE);
         body.width = width;
         body.height = height;
-        body.vertices = createBoxVertices(width, height);
+        body.vertices = createBoxVerticesAtOrigin(width, height);
         body.transformedVertices = new FlatVector[body.vertices.length];
         body.triangles = createTrisVerticesOrder();
+        body.doesVerticesRequireUpdate = false;
+
         return body;
     }
 
