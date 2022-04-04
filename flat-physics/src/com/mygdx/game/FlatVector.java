@@ -59,8 +59,10 @@ public class FlatVector {
         // https://matthew-brett.github.io/teaching/rotation_2d.html
         // x2=cosβx1−sinβy1
         // y2=sinβx1+cosβy1
-        this.x = t.getCos() * this.x - t.getSin() * this.y;
-        this.y = t.getSin() * this.x + t.getCos() * this.y;
+        float x1 = this.x;
+        float y1 = this.y;
+        this.x = t.getCos() * x1 - t.getSin() * y1;
+        this.y = t.getSin() * x1 + t.getCos() * y1;
 
         this.x = this.x + t.getX();
         this.y = this.y + t.getY();

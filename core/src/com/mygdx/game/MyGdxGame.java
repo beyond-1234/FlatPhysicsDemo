@@ -197,7 +197,6 @@ public class MyGdxGame extends ApplicationAdapter {
 			drawer.setColor(Color.WHITE);
 			drawer.filledPolygon(v, body.getTriangles());
 
-
 		}
 	}
 
