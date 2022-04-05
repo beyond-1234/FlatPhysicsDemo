@@ -24,8 +24,12 @@ public class MyGdxGame extends ApplicationAdapter {
 	float strokeWidth;
 	Texture img;
 
+	float totalHeight;
+	float totalWidth;
+
 	ArrayList<FlatBody> bodyList;
 	ArrayList<Color> colorList;
+	ArrayList<Color> outlineColorList;
 
 	// cache stuff instead of creating new object everytime
 	FlatVector cachedDirection;
@@ -36,6 +40,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 1920, 1080);
+		totalHeight = camera.viewportHeight;
+		totalWidth  = camera.viewportWidth;
 
 		initializeDrawer();
 
@@ -55,8 +61,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		float deltaY = 0f;
 		float speed  = 8f;
 
-//		circleMove(deltaX, deltaY, speed);
-//
+		move(deltaX, deltaY, speed);
+
 //		circleCollide();
 //
 //		drawCircleList();
@@ -90,12 +96,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 	private void initializeCircleList() {
-		cachedDirection = new FlatVector(0f, 0f);
-		colorList = new ArrayList<>();
-		bodyList = new ArrayList<>();
-
-		float totalHeight = camera.viewportHeight;
-		float totalWidth = camera.viewportWidth;
+		initializeList();
 
 		for (int i = 0; i < 1000; i++) {
 			FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
@@ -107,23 +108,26 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 	private void initializeBoxList() {
-		cachedDirection = new FlatVector(0f, 0f);
-		colorList = new ArrayList<>();
-		bodyList = new ArrayList<>();
+		initializeList();
 
-		float totalHeight = camera.viewportHeight;
-		float totalWidth = camera.viewportWidth;
-
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 100; i++) {
 			FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
 //			System.out.println(center);
 			bodyList.add(FlatBody.createBoxBody(40f, 40f, center, 2f, false, 0.5f));
 
 			colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
+			outlineColorList.add(new Color(Color.WHITE));
 		}
 	}
 
-	private void circleMove(float deltaX, float deltaY, float speed) {
+	private void initializeList() {
+		cachedDirection = new FlatVector(0f, 0f);
+		colorList = new ArrayList<>();
+		outlineColorList = new ArrayList<>();
+		bodyList = new ArrayList<>();
+	}
+
+	private void move(float deltaX, float deltaY, float speed) {
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) 	deltaX--;
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) 	deltaX++;
 		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) 	deltaY--;
@@ -182,10 +186,28 @@ public class MyGdxGame extends ApplicationAdapter {
 			FlatBody body = this.bodyList.get(i);
 
 			body.rotate((float) Math.PI / 2f / 100f);
+			outlineColorList.get(i).set(Color.WHITE);
 		}
 	}
 
-	private void boxCollide() {}
+	private void boxCollide() {
+		for (int i = 0; i < this.bodyList.size() - 1; i++) {
+
+			FlatBody bodyA = this.bodyList.get(i);
+			FlatVector[] verticesA = bodyA.getTransformedVertices();
+
+			for (int j = i + 1; j < this.bodyList.size(); j++) {
+				FlatBody bodyB = this.bodyList.get(j);
+				FlatVector[] verticesB = bodyB.getTransformedVertices();
+
+				if(Collisions.isIntersectPolygons(verticesA, verticesB)) {
+					outlineColorList.get(i).set(Color.RED);
+					outlineColorList.get(j).set(Color.RED);
+				}
+
+			}
+		}
+	}
 
 	private void drawBoxList() {
 		for (int i = 0; i < this.bodyList.size(); i++) {
@@ -196,7 +218,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			drawer.filledPolygon(this.cachedVertices, body.getTriangles());
 
 			drawer.setDefaultLineWidth(2f);
-			drawer.setColor(Color.WHITE);
+			drawer.setColor(this.outlineColorList.get(i));
 			drawer.polygon(this.cachedVertices);
 			drawer.setDefaultLineWidth(strokeWidth);
 

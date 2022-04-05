@@ -7,7 +7,7 @@ Java implementation of a [physics engine tutorial using C#](https://www.bilibili
 - libGDX
 - shapedrawer(a library for libGDX)
 
-### tool
+### tools
 
 - IDEA
 - Gradle
