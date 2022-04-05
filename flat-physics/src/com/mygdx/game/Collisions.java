@@ -138,17 +138,30 @@ public class Collisions {
 
     }
 
-    public static float getIntersectCirclesDepth(FlatVector centerA, float radiusA,
-                                           FlatVector centerB, float radiusB) {
+    public static CollisionResult detectIntersectCircles(FlatVector centerA, float radiusA,
+                                                 FlatVector centerB, float radiusB) {
         float distance = FlatMath.distance(centerA, centerB);
         float radii = radiusA + radiusB;
 
-        return distance >= radii ? 0f : radii - distance;
+        if(distance >= radii)
+            return new CollisionResult(false);
+
+        return new CollisionResult(true,
+                FlatMath.normalize(FlatVector.subtract(centerB, centerA)),
+                radii - distance);
     }
 
-    // get the direction of the intersection when the first circle is pushed away
-    // the direction points from the first circle to the second
-    public static FlatVector getIntersectCirclesNormal(FlatVector centerA, FlatVector centerB) {
-        return FlatMath.normalize(FlatVector.subtract(centerB, centerA));
-    }
+//    public static float getIntersectCirclesDepth(FlatVector centerA, float radiusA,
+//                                           FlatVector centerB, float radiusB) {
+//        float distance = FlatMath.distance(centerA, centerB);
+//        float radii = radiusA + radiusB;
+//
+//        return distance >= radii ? 0f : radii - distance;
+//    }
+//
+//    // get the direction of the intersection when the first circle is pushed away
+//    // the direction points from the first circle to the second
+//    public static FlatVector getIntersectCirclesNormal(FlatVector centerA, FlatVector centerB) {
+//        return FlatMath.normalize(FlatVector.subtract(centerB, centerA));
+//    }
 }

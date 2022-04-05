@@ -150,14 +150,13 @@ public class MyGdxGame extends ApplicationAdapter {
 			for (int j = i + 1; j < this.bodyList.size(); j++) {
 				FlatBody bodyB = this.bodyList.get(j);
 
-				float depth = Collisions.getIntersectCirclesDepth(
-							bodyA.getPosition(), bodyA.getRadius(),
-							bodyB.getPosition(), bodyB.getRadius());
-				if(depth > 0f) {
-					FlatVector direction = Collisions.getIntersectCirclesNormal(bodyA.getPosition(), bodyB.getPosition());
+				Collisions.CollisionResult collisionResult = Collisions.detectIntersectCircles(
+						bodyA.getPosition(), bodyA.getRadius(),
+						bodyB.getPosition(), bodyB.getRadius());
 
-					bodyB.move(direction.multiply(depth).divide(2f));
-					bodyA.move(direction.negative());
+				if(collisionResult.isIntersect) {
+					bodyB.move(collisionResult.normal.multiply(collisionResult.depth).divide(2f));
+					bodyA.move(collisionResult.normal.negative());
 				}
 			}
 		}
