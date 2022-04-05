@@ -47,7 +47,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		initializeCircleList();
 
-		initializeBoxList();
+//		initializeBoxList();
 	}
 
 
@@ -63,15 +63,15 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		move(deltaX, deltaY, speed);
 
-//		circleCollide();
+		circleCollide();
+
+		drawCircleList();
+
+//		boxMove(deltaX, deltaY, speed);
 //
-//		drawCircleList();
-
-		boxMove(deltaX, deltaY, speed);
-
-		boxCollide();
-
-		drawBoxList();
+//		boxCollide();
+//
+//		drawBoxList();
 
 		batch.end();
 	}
@@ -93,6 +93,13 @@ public class MyGdxGame extends ApplicationAdapter {
 		TextureRegion region = new TextureRegion(texture, 0, 0, 1, 1);
 		drawer = new ShapeDrawer(batch, region);
 		strokeWidth = drawer.getDefaultLineWidth();
+	}
+
+	private void initializeList() {
+		cachedDirection = new FlatVector(0f, 0f);
+		colorList = new ArrayList<>();
+		outlineColorList = new ArrayList<>();
+		bodyList = new ArrayList<>();
 	}
 
 	private void initializeCircleList() {
@@ -120,12 +127,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 	}
 
-	private void initializeList() {
-		cachedDirection = new FlatVector(0f, 0f);
-		colorList = new ArrayList<>();
-		outlineColorList = new ArrayList<>();
-		bodyList = new ArrayList<>();
-	}
 
 	private void move(float deltaX, float deltaY, float speed) {
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) 	deltaX--;
@@ -153,10 +154,10 @@ public class MyGdxGame extends ApplicationAdapter {
 							bodyA.getPosition(), bodyA.getRadius(),
 							bodyB.getPosition(), bodyB.getRadius());
 				if(depth > 0f) {
-					FlatVector directionForA = Collisions.getIntersectCirclesNormal(bodyA.getPosition(), bodyB.getPosition());
-					FlatVector directionForB = directionForA.clone();
-					bodyA.move(directionForA.multiply(depth).negative().divide(2f));
-					bodyB.move(directionForB.multiply(depth).divide(2f));
+					FlatVector direction = Collisions.getIntersectCirclesNormal(bodyA.getPosition(), bodyB.getPosition());
+
+					bodyB.move(direction.multiply(depth).divide(2f));
+					bodyA.move(direction.negative());
 				}
 			}
 		}
@@ -185,7 +186,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		for (int i = 0; i < this.bodyList.size(); i++) {
 			FlatBody body = this.bodyList.get(i);
 
-			body.rotate((float) Math.PI / 2f / 100f);
+//			body.rotate((float) Math.PI / 2f / 100f);
 			outlineColorList.get(i).set(Color.WHITE);
 		}
 	}
@@ -200,9 +201,14 @@ public class MyGdxGame extends ApplicationAdapter {
 				FlatBody bodyB = this.bodyList.get(j);
 				FlatVector[] verticesB = bodyB.getTransformedVertices();
 
-				if(Collisions.isIntersectPolygons(verticesA, verticesB)) {
+				Collisions.CollisionResult collisionResult = Collisions.detectIntersectPolygons(verticesA, verticesB);
+				if(collisionResult.isIntersect) {
 					outlineColorList.get(i).set(Color.RED);
 					outlineColorList.get(j).set(Color.RED);
+
+//					FlatVector directionForB = collisionResult.normal.clone();
+					bodyB.move(collisionResult.normal.multiply(collisionResult.depth).divide(2f));
+					bodyA.move(collisionResult.normal.negative());
 				}
 
 			}

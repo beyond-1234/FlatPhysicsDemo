@@ -15,7 +15,10 @@ public class Collisions {
      * @param verticesB transformed vertices of second polygon
      * @return is intersected
      */
-    public static boolean isIntersectPolygons(FlatVector[] verticesA, FlatVector[] verticesB) {
+    public static CollisionResult detectIntersectPolygons(FlatVector[] verticesA, FlatVector[] verticesB) {
+
+        FlatVector normal = FlatVector.getZero();
+        float depth = Float.MAX_VALUE;
 
         for (int i = 0; i < verticesA.length; i++) {
             FlatVector va = verticesA[i];
@@ -30,7 +33,14 @@ public class Collisions {
 
             // detect overlap
             if(projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
-                return false;
+                return new CollisionResult(false);
+            }
+
+            float axisDepth = Math.min(projectionB.max - projectionA.min, projectionA.max - projectionB.min);
+
+            if(axisDepth < depth) {
+                depth = axisDepth;
+                normal = axis;
             }
         }
 
@@ -47,10 +57,44 @@ public class Collisions {
 
             // detect overlap
             if(projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
-                return false;
+                return new CollisionResult(false);
             }
+
+            float axisDepth = Math.min(projectionB.max - projectionA.min, projectionA.max - projectionB.min);
+
+            if(axisDepth < depth) {
+                depth = axisDepth;
+                normal = axis;
+            }
+
         }
-        return true;
+
+        depth /= FlatMath.length(normal);
+        normal = FlatMath.normalize(normal);
+
+        // make sure the normal is always pointing from the first one to the second
+        FlatVector centerA = findArithmeticMean(verticesA);
+        FlatVector centerB = findArithmeticMean(verticesB);
+
+        FlatVector direction = FlatVector.subtract(centerB, centerA);
+
+        if(FlatMath.dot(direction, normal) < 0f) {
+            normal.negative();
+        }
+
+        return new CollisionResult(true, normal, depth);
+    }
+
+    private static FlatVector findArithmeticMean(FlatVector[] vertices) {
+        float sumX = 0f;
+        float sumY = 0f;
+
+        for (int i = 0; i < vertices.length; i++) {
+            FlatVector v = vertices[i];
+            sumX += v.getX();
+            sumY += v.getY();
+        }
+        return new FlatVector(sumX / vertices.length, sumY / vertices.length);
     }
 
     private static PolygonProjection projectPolygon(FlatVector[] vertices, FlatVector axis) {
@@ -77,6 +121,23 @@ public class Collisions {
         }
     }
 
+    public static class CollisionResult {
+        public boolean isIntersect;
+        public FlatVector normal;
+        public float depth;
+
+        public CollisionResult(boolean isIntersect) {
+            this.isIntersect = isIntersect;
+        }
+
+        public CollisionResult(boolean isIntersect, FlatVector normal, float depth) {
+            this.isIntersect = isIntersect;
+            this.normal = normal;
+            this.depth = depth;
+        }
+
+    }
+
     public static float getIntersectCirclesDepth(FlatVector centerA, float radiusA,
                                            FlatVector centerB, float radiusB) {
         float distance = FlatMath.distance(centerA, centerB);
@@ -86,7 +147,7 @@ public class Collisions {
     }
 
     // get the direction of the intersection when the first circle is pushed away
-    // the direction points from the second circle to the first
+    // the direction points from the first circle to the second
     public static FlatVector getIntersectCirclesNormal(FlatVector centerA, FlatVector centerB) {
         return FlatMath.normalize(FlatVector.subtract(centerB, centerA));
     }

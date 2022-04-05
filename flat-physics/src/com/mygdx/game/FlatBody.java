@@ -197,7 +197,7 @@ public class FlatBody {
         body.vertices = createBoxVerticesAtOrigin(width, height);
         body.transformedVertices = new FlatVector[body.vertices.length];
         body.triangles = createTrisVerticesOrder();
-        body.doesVerticesRequireUpdate = false;
+        body.doesVerticesRequireUpdate = true;
 
         return body;
     }
