@@ -158,9 +158,12 @@ public class MyGdxGame extends ApplicationAdapter {
 						collisionResult = doCirclesCollide(bodyA, bodyB);
 					}
 				}else {
-
 					if(FlatBody.BOX_SHAPE == bodyA.getShapeType()) {
 						collisionResult = doCirclePolygonCollide(bodyB, bodyA);
+
+						if(collisionResult.isIntersect) {
+							collisionResult.normal.negative();
+						}
 					}else {
 						collisionResult = doCirclePolygonCollide(bodyA, bodyB);
 					}
@@ -169,8 +172,6 @@ public class MyGdxGame extends ApplicationAdapter {
 				if(collisionResult.isIntersect) {
 					outlineColorList.get(i).set(Color.RED);
 					outlineColorList.get(j).set(Color.RED);
-					System.out.println(bodyA.getShapeType() == bodyB.getShapeType());
-					System.out.println(bodyA.getShapeType());
 
 					bodyB.move(collisionResult.normal.multiply(collisionResult.depth).divide(2f));
 					bodyA.move(collisionResult.normal.negative());

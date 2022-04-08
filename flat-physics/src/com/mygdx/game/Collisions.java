@@ -28,7 +28,6 @@ public class Collisions {
             FlatVector edge = FlatVector.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
             axis.setFlatVector(-edge.getY(), edge.getX());
-            axis = FlatMath.normalize(axis);
 
             PolygonProjection projectionP = projectPolygon(vertices, axis);
             PolygonProjection projectionC = projectCircle(circleCenter, radius, axis);
@@ -39,12 +38,12 @@ public class Collisions {
                 return new CollisionResult(false);
             }
 
-//            float axisDepth = Math.min(projectionC.max - projectionP.min, projectionP.max - projectionC.min);
-//
-//            if(axisDepth < depth) {
-//                depth = axisDepth;
-//                normal = axis;
-//            }
+            float axisDepth = Math.min(projectionC.max - projectionP.min, projectionP.max - projectionC.min);
+
+            if(axisDepth < depth) {
+                depth = axisDepth;
+                normal = axis;
+            }
         }
 
         // calculate normal and depth
@@ -52,7 +51,6 @@ public class Collisions {
         FlatVector cp = vertices[closestPointIndex];
 
         axis = FlatVector.subtract(cp, circleCenter);
-        axis = FlatMath.normalize(axis);
 
         PolygonProjection projectionP = projectPolygon(vertices, axis);
         PolygonProjection projectionC = projectCircle(circleCenter, radius, axis);
