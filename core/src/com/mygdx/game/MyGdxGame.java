@@ -22,6 +22,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	Pixmap pixmap;
 	ShapeDrawer drawer;
 	float strokeWidth;
+	int count = 10;
 
 	float totalHeight;
 	float totalWidth;
@@ -58,6 +59,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.begin();
 		camera.update();
 
+		reset();
+
 		float deltaX = 0f;
 		float deltaY = 0f;
 		float speed  = 8f;
@@ -76,6 +79,12 @@ public class MyGdxGame extends ApplicationAdapter {
 //		drawBoxList();
 
 		batch.end();
+	}
+
+	private void reset() {
+		for (int i = 0; i < count; i++) {
+			outlineColorList.get(i).set((Color.WHITE));
+		}
 	}
 
 
@@ -106,21 +115,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	private void initializeRandomList() {
 		initializeList();
 
-//		FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
-//		FlatVector center2 = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
-
-//		bodyList.add(FlatBody.createBoxBody(40f, 40f, center2, 2f, false, 0.5f));
-//		bodyList.add(FlatBody.createCircleBody(20f, center, 2f, false, 0.5f));
-//		bodyList.add(FlatBody.createBoxBody(40f, 40f, center2, 2f, false, 0.5f));
-//
-//		outlineColorList.add(new Color(Color.WHITE));
-////		outlineColorList.add(new Color(Color.WHITE));
-//		outlineColorList.add(new Color(Color.WHITE));
-////		colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
-//		colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
-//		colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
-
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < count; i++) {
 			FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
 			if (Math.random() > 0.5) {
 				bodyList.add(FlatBody.createCircleBody(20f, center, 2f, false, 0.5f));
@@ -203,7 +198,6 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	private void drawList() {
 		for (int i = 0; i < this.bodyList.size(); i++) {
-			outlineColorList.get(i).set(Color.WHITE);
 			drawer.setDefaultLineWidth(strokeWidth);
 
 			FlatBody body = this.bodyList.get(i);
