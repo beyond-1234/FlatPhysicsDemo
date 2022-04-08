@@ -135,7 +135,6 @@ public class Collisions {
 
         FlatVector normal = FlatVector.getZero();
         float depth = Float.MAX_VALUE;
-        FlatVector axis = new FlatVector();
 
         for (int i = 0; i < verticesA.length; i++) {
             FlatVector va = verticesA[i];
@@ -143,19 +142,19 @@ public class Collisions {
 
             FlatVector edge = FlatVector.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
-            axis.setFlatVector(-edge.getY(), edge.getX());
+            FlatVector axis = new FlatVector(-edge.getY(), edge.getX());
 
             PolygonProjection projectionA = projectPolygon(verticesA, axis);
             PolygonProjection projectionB = projectPolygon(verticesB, axis);
 
-            // detect overlap, if not return false
-            if (projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
+            // detect overlap
+            if(projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
                 return new CollisionResult(false);
             }
 
             float axisDepth = Math.min(projectionB.max - projectionA.min, projectionA.max - projectionB.min);
 
-            if (axisDepth < depth) {
+            if(axisDepth < depth) {
                 depth = axisDepth;
                 normal = axis;
             }
@@ -167,19 +166,19 @@ public class Collisions {
 
             FlatVector edge = FlatVector.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
-            axis.setFlatVector(-edge.getY(), edge.getX());
+            FlatVector axis = new FlatVector(-edge.getY(), edge.getX());
 
             PolygonProjection projectionA = projectPolygon(verticesA, axis);
             PolygonProjection projectionB = projectPolygon(verticesB, axis);
 
             // detect overlap
-            if (projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
+            if(projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
                 return new CollisionResult(false);
             }
 
             float axisDepth = Math.min(projectionB.max - projectionA.min, projectionA.max - projectionB.min);
 
-            if (axisDepth < depth) {
+            if(axisDepth < depth) {
                 depth = axisDepth;
                 normal = axis;
             }
@@ -192,8 +191,10 @@ public class Collisions {
         // make sure the normal is always pointing from the first one to the second
         FlatVector centerA = findArithmeticMean(verticesA);
         FlatVector centerB = findArithmeticMean(verticesB);
+
         FlatVector direction = FlatVector.subtract(centerB, centerA);
-        if (FlatMath.dot(direction, normal) < 0f) {
+
+        if(FlatMath.dot(direction, normal) < 0f) {
             normal.negative();
         }
 
