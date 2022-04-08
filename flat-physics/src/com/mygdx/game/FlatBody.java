@@ -241,4 +241,13 @@ public class FlatBody {
     public int getShapeType() {
         return shapeType;
     }
+
+    @Override
+    public String toString() {
+        return "FlatBody{" +
+                "position=" + position +
+                ", rotation=" + rotation +
+                ", shapeType=" + shapeType +
+                '}';
+    }
 }

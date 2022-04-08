@@ -4,16 +4,18 @@ public class Collisions {
 
     /**
      * detect circle and polygon with sat method
-     *
+     * <p>
      * use direction from circle center to every point of polygon as axis
      * first we want to see if exists any overlap in all axis, if found once not overlapped then return false
      * then find the closest point to circle center, use that point to calculate normal and depth
+     *
      * @param circleCenter
      * @param vertices
      * @return
      */
     public static CollisionResult detectIntersectCirclePolygon(
             FlatVector circleCenter, float radius, FlatVector[] vertices) {
+
         FlatVector normal = FlatVector.getZero();
         float depth = Float.MAX_VALUE;
         FlatVector axis = new FlatVector();
@@ -26,12 +28,14 @@ public class Collisions {
             FlatVector edge = FlatVector.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
             axis.setFlatVector(-edge.getY(), edge.getX());
+            axis = FlatMath.normalize(axis);
 
             PolygonProjection projectionP = projectPolygon(vertices, axis);
             PolygonProjection projectionC = projectCircle(circleCenter, radius, axis);
 
             // detect overlap, if not return false
-            if(projectionP.min >= projectionC.max || projectionC.min >= projectionP.max) {
+            if (projectionP.min >= projectionC.max || projectionC.min >= projectionP.max) {
+//                System.out.println("not overlapping");
                 return new CollisionResult(false);
             }
 
@@ -48,13 +52,14 @@ public class Collisions {
         FlatVector cp = vertices[closestPointIndex];
 
         axis = FlatVector.subtract(cp, circleCenter);
+        axis = FlatMath.normalize(axis);
 
         PolygonProjection projectionP = projectPolygon(vertices, axis);
         PolygonProjection projectionC = projectCircle(circleCenter, radius, axis);
 
         float axisDepth = Math.min(projectionC.max - projectionP.min, projectionP.max - projectionC.min);
 
-        if(axisDepth < depth) {
+        if (axisDepth < depth) {
             depth = axisDepth;
             normal = axis;
         }
@@ -65,7 +70,7 @@ public class Collisions {
         // make sure the normal is always pointing from the first one to the second
         FlatVector polygonCenter = findArithmeticMean(vertices);
         FlatVector direction = FlatVector.subtract(polygonCenter, circleCenter);
-        if(FlatMath.dot(direction, normal) < 0f) {
+        if (FlatMath.dot(direction, normal) < 0f) {
             normal.negative();
         }
 
@@ -80,7 +85,7 @@ public class Collisions {
             FlatVector v = vertices[i];
             float distance = FlatMath.distance(v, targetPoint);
 
-            if(distance < minDistance) {
+            if (distance < minDistance) {
                 minDistance = distance;
                 index = i;
             }
@@ -92,6 +97,7 @@ public class Collisions {
     /**
      * get min projection of circle onto axis
      * get max projection of circle onto axis
+     *
      * @param center
      * @param radius
      * @param axis
@@ -103,7 +109,7 @@ public class Collisions {
         float min = FlatMath.dot(FlatVector.add(center, directionAndRadius), axis);
         float max = FlatMath.dot(FlatVector.subtract(center, directionAndRadius), axis);
 
-        if(min > max) {
+        if (min > max) {
             float t = min;
             min = max;
             max = t;
@@ -114,12 +120,13 @@ public class Collisions {
 
     /**
      * Use SAT method to detect polygons intersection
-     *
+     * <p>
      * SAT: find normal direction of one edge, then project all vertices onto the axis pointing normal direction
      * we do this operation for all edges,
      * if the projections of polygons overlap, we move on to the next edge
      * once we find that on one axis the projections of polygons don't overlap, means they don't intersect
      * if polygons overlap on every axis, then means they intersect
+     *
      * @param verticesA transformed vertices of first polygon
      * @param verticesB transformed vertices of second polygon
      * @return is intersected
@@ -142,13 +149,13 @@ public class Collisions {
             PolygonProjection projectionB = projectPolygon(verticesB, axis);
 
             // detect overlap, if not return false
-            if(projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
+            if (projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
                 return new CollisionResult(false);
             }
 
             float axisDepth = Math.min(projectionB.max - projectionA.min, projectionA.max - projectionB.min);
 
-            if(axisDepth < depth) {
+            if (axisDepth < depth) {
                 depth = axisDepth;
                 normal = axis;
             }
@@ -166,13 +173,13 @@ public class Collisions {
             PolygonProjection projectionB = projectPolygon(verticesB, axis);
 
             // detect overlap
-            if(projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
+            if (projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
                 return new CollisionResult(false);
             }
 
             float axisDepth = Math.min(projectionB.max - projectionA.min, projectionA.max - projectionB.min);
 
-            if(axisDepth < depth) {
+            if (axisDepth < depth) {
                 depth = axisDepth;
                 normal = axis;
             }
@@ -186,7 +193,7 @@ public class Collisions {
         FlatVector centerA = findArithmeticMean(verticesA);
         FlatVector centerB = findArithmeticMean(verticesB);
         FlatVector direction = FlatVector.subtract(centerB, centerA);
-        if(FlatMath.dot(direction, normal) < 0f) {
+        if (FlatMath.dot(direction, normal) < 0f) {
             normal.negative();
         }
 
@@ -208,6 +215,7 @@ public class Collisions {
     /**
      * the min projection of all points onto the axis
      * the max projection of all points onto the axis
+     *
      * @param vertices
      * @param axis
      * @return
@@ -220,10 +228,10 @@ public class Collisions {
                 vertices) {
             float projection = FlatMath.dot(v, axis);
 
-            if(projection < min) min = projection;
-            if(projection > max) max = projection;
+            if (projection < min) min = projection;
+            if (projection > max) max = projection;
         }
-        return new PolygonProjection(min ,max);
+        return new PolygonProjection(min, max);
     }
 
     private static class PolygonProjection {
@@ -254,11 +262,11 @@ public class Collisions {
     }
 
     public static CollisionResult detectIntersectCircles(FlatVector centerA, float radiusA,
-                                                 FlatVector centerB, float radiusB) {
+                                                         FlatVector centerB, float radiusB) {
         float distance = FlatMath.distance(centerA, centerB);
         float radii = radiusA + radiusB;
 
-        if(distance >= radii)
+        if (distance >= radii)
             return new CollisionResult(false);
 
         return new CollisionResult(true,

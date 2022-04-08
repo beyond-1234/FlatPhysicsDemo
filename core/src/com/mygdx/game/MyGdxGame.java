@@ -22,7 +22,6 @@ public class MyGdxGame extends ApplicationAdapter {
 	Pixmap pixmap;
 	ShapeDrawer drawer;
 	float strokeWidth;
-	Texture img;
 
 	float totalHeight;
 	float totalWidth;
@@ -39,13 +38,15 @@ public class MyGdxGame extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 1920, 1080);
+		camera.setToOrtho(false, 800, 600);
 		totalHeight = camera.viewportHeight;
 		totalWidth  = camera.viewportWidth;
 
 		initializeDrawer();
 
-		initializeCircleList();
+		initializeRandomList();
+
+//		initializeCircleList();
 
 //		initializeBoxList();
 	}
@@ -63,9 +64,10 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		move(deltaX, deltaY, speed);
 
-		circleCollide();
+		collide();
 
-		drawCircleList();
+		drawList();
+//		drawCircleList();
 
 //		boxMove(deltaX, deltaY, speed);
 //
@@ -80,7 +82,6 @@ public class MyGdxGame extends ApplicationAdapter {
 	@Override
 	public void dispose () {
 		batch.dispose();
-		img.dispose();
 		pixmap.dispose();
 		texture.dispose();
 	}
@@ -100,6 +101,160 @@ public class MyGdxGame extends ApplicationAdapter {
 		colorList = new ArrayList<>();
 		outlineColorList = new ArrayList<>();
 		bodyList = new ArrayList<>();
+	}
+
+	private void initializeRandomList() {
+		initializeList();
+
+//		FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
+//		FlatVector center2 = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
+
+//		bodyList.add(FlatBody.createBoxBody(40f, 40f, center2, 2f, false, 0.5f));
+//		bodyList.add(FlatBody.createCircleBody(20f, center, 2f, false, 0.5f));
+//		bodyList.add(FlatBody.createBoxBody(40f, 40f, center2, 2f, false, 0.5f));
+//
+//		outlineColorList.add(new Color(Color.WHITE));
+////		outlineColorList.add(new Color(Color.WHITE));
+//		outlineColorList.add(new Color(Color.WHITE));
+////		colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
+//		colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
+//		colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
+
+		for (int i = 0; i < 10; i++) {
+			FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
+			if (Math.random() > 0.5) {
+				bodyList.add(FlatBody.createCircleBody(20f, center, 2f, false, 0.5f));
+			}else {
+				bodyList.add(FlatBody.createBoxBody(40f, 40f, center, 2f, false, 0.5f));
+			}
+//			System.out.println(bodyList.get(i));
+			outlineColorList.add(new Color(Color.WHITE));
+			colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
+		}
+	}
+
+	private void move(float deltaX, float deltaY, float speed) {
+		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) 	deltaX--;
+		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) 	deltaX++;
+		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) 	deltaY--;
+		if(Gdx.input.isKeyPressed(Input.Keys.UP)) 		deltaY++;
+
+		if(deltaX != 0f || deltaY != 0f) {
+			cachedDirection.setFlatVector(deltaX, deltaY);
+			FlatVector direction = FlatMath.normalize(cachedDirection);
+			FlatVector velocity  = FlatVector.multiply(direction, speed);
+			bodyList.get(0).move(velocity);
+		}
+	}
+
+	private void collide() {
+		for (int i = 0; i < this.bodyList.size() - 1; i++) {
+
+			FlatBody bodyA = this.bodyList.get(i);
+
+			for (int j = i + 1; j < this.bodyList.size(); j++) {
+				FlatBody bodyB = this.bodyList.get(j);
+				Collisions.CollisionResult collisionResult;
+
+				if(bodyA.getShapeType() == bodyB.getShapeType()) {
+					if(FlatBody.BOX_SHAPE == bodyA.getShapeType()) {
+						collisionResult = doPolygonsCollide(bodyA, bodyB);
+					} else {
+						collisionResult = doCirclesCollide(bodyA, bodyB);
+					}
+				}else {
+
+					if(FlatBody.BOX_SHAPE == bodyA.getShapeType()) {
+						collisionResult = doCirclePolygonCollide(bodyB, bodyA);
+					}else {
+						collisionResult = doCirclePolygonCollide(bodyA, bodyB);
+					}
+				}
+
+				if(collisionResult.isIntersect) {
+					outlineColorList.get(i).set(Color.RED);
+					outlineColorList.get(j).set(Color.RED);
+					System.out.println(bodyA.getShapeType() == bodyB.getShapeType());
+					System.out.println(bodyA.getShapeType());
+
+					bodyB.move(collisionResult.normal.multiply(collisionResult.depth).divide(2f));
+					bodyA.move(collisionResult.normal.negative());
+				}
+
+			}
+		}
+	}
+
+	private Collisions.CollisionResult doCirclePolygonCollide(FlatBody circle, FlatBody polygon) {
+		return Collisions.detectIntersectCirclePolygon(circle.getPosition(), circle.getRadius(), polygon.getTransformedVertices());
+	}
+
+	private Collisions.CollisionResult doCirclesCollide(FlatBody bodyA, FlatBody bodyB) {
+		return Collisions.detectIntersectCircles(
+				bodyA.getPosition(), bodyA.getRadius(),
+				bodyB.getPosition(), bodyB.getRadius());
+	}
+
+	private Collisions.CollisionResult doPolygonsCollide(FlatBody bodyA, FlatBody bodyB) {
+		FlatVector[] verticesA = bodyA.getTransformedVertices();
+		FlatVector[] verticesB = bodyB.getTransformedVertices();
+		return Collisions.detectIntersectPolygons(verticesA, verticesB);
+	}
+
+	private void drawList() {
+		for (int i = 0; i < this.bodyList.size(); i++) {
+			outlineColorList.get(i).set(Color.WHITE);
+			drawer.setDefaultLineWidth(strokeWidth);
+
+			FlatBody body = this.bodyList.get(i);
+
+			float x = body.getPosition().getX();
+			float y = body.getPosition().getY();
+
+			if(FlatBody.CIRCLE_SHAPE == body.getShapeType()) {
+				drawer.setColor(this.outlineColorList.get(i));
+				drawer.filledCircle(x, y, body.getRadius());
+
+				drawer.setColor(this.colorList.get(i));
+				drawer.filledCircle(x, y, body.getRadius() - 2);
+			}else {
+				toFloatArray(body.getTransformedVertices());
+				drawer.setColor(this.colorList.get(i));
+				drawer.filledPolygon(this.cachedVertices, body.getTriangles());
+
+				drawer.setDefaultLineWidth(2f);
+				drawer.setColor(this.outlineColorList.get(i));
+				drawer.polygon(this.cachedVertices);
+			}
+
+		}
+	}
+
+	private void toFloatArray(FlatVector[] vertices) {
+		this.cachedVertices = new float[vertices.length << 1];
+
+		for (int i = 0, j = 0; i < cachedVertices.length - 1 && j < vertices.length; i+=2, j++) {
+			cachedVertices[i] = vertices[j].getX();
+			cachedVertices[i + 1] = vertices[j].getY();
+		}
+	}
+
+	private void drawCircleList() {
+
+		for (int i = 0; i < this.bodyList.size(); i++) {
+			FlatBody body = this.bodyList.get(i);
+
+			float x = body.getPosition().getX();
+			float y = body.getPosition().getY();
+
+			drawer.setColor(Color.WHITE);
+			drawer.filledCircle(x, y, body.getRadius());
+
+			drawer.setColor(this.colorList.get(i));
+			drawer.filledCircle(x, y, body.getRadius() - 2);
+
+		}
+
 	}
 
 	private void initializeCircleList() {
@@ -127,21 +282,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 	}
 
-
-	private void move(float deltaX, float deltaY, float speed) {
-		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) 	deltaX--;
-		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) 	deltaX++;
-		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) 	deltaY--;
-		if(Gdx.input.isKeyPressed(Input.Keys.UP)) 		deltaY++;
-
-		if(deltaX != 0f || deltaY != 0f) {
-			cachedDirection.setFlatVector(deltaX, deltaY);
-			FlatVector direction = FlatMath.normalize(cachedDirection);
-			FlatVector velocity  = FlatVector.multiply(direction, speed);
-			bodyList.get(0).move(velocity);
-		}
-	}
-
 	private void circleCollide() {
 		for (int i = 0; i < this.bodyList.size() - 1; i++) {
 
@@ -162,25 +302,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 	}
 
-	private void drawCircleList() {
-
-		for (int i = 0; i < this.bodyList.size(); i++) {
-			FlatBody body = this.bodyList.get(i);
-
-			float x = body.getPosition().getX();
-			float y = body.getPosition().getY();
-
-			drawer.setColor(Color.WHITE);
-			drawer.filledCircle(x, y, body.getRadius());
-
-			drawer.setColor(this.colorList.get(i));
-			drawer.filledCircle(x, y, body.getRadius() - 2);
-
-		}
-
-	}
-
-
 	private void boxMove(float deltaX, float deltaY, float speed) {
 		for (int i = 0; i < this.bodyList.size(); i++) {
 			FlatBody body = this.bodyList.get(i);
@@ -199,16 +320,6 @@ public class MyGdxGame extends ApplicationAdapter {
 			for (int j = i + 1; j < this.bodyList.size(); j++) {
 				FlatBody bodyB = this.bodyList.get(j);
 				FlatVector[] verticesB = bodyB.getTransformedVertices();
-
-				Collisions.CollisionResult collisionResult = Collisions.detectIntersectPolygons(verticesA, verticesB);
-				if(collisionResult.isIntersect) {
-					outlineColorList.get(i).set(Color.RED);
-					outlineColorList.get(j).set(Color.RED);
-
-//					FlatVector directionForB = collisionResult.normal.clone();
-					bodyB.move(collisionResult.normal.multiply(collisionResult.depth).divide(2f));
-					bodyA.move(collisionResult.normal.negative());
-				}
 
 			}
 		}
@@ -230,13 +341,5 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 	}
 
-	private void toFloatArray(FlatVector[] vertices) {
-		this.cachedVertices = new float[vertices.length << 1];
-
-		for (int i = 0, j = 0; i < cachedVertices.length - 1 && j < vertices.length; i+=2, j++) {
-			cachedVertices[i] = vertices[j].getX();
-			cachedVertices[i + 1] = vertices[j].getY();
-		}
-	}
 
 }
