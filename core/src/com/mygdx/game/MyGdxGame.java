@@ -143,6 +143,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 	private void collide() {
+		// current issue
+		// box vertically doesn't work well with circle, same reversed
 		for (int i = 0; i < this.bodyList.size() - 1; i++) {
 
 			FlatBody bodyA = this.bodyList.get(i);
