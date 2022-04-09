@@ -70,10 +70,10 @@ public class FlatVector {
         return this;
     }
 
-    public void setFlatVector(float x, float y) {
-        this.x = x;
-        this.y = y;
-    }
+//    public void setFlatVector(float x, float y) {
+//        this.x = x;
+//        this.y = y;
+//    }
 
     public static FlatVector add(FlatVector a, FlatVector b) {
         return new FlatVector(a.x + b.x, a.y + b.y);

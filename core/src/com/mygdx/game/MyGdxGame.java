@@ -135,7 +135,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		if(Gdx.input.isKeyPressed(Input.Keys.UP)) 		deltaY++;
 
 		if(deltaX != 0f || deltaY != 0f) {
-			cachedDirection.setFlatVector(deltaX, deltaY);
+			cachedDirection = new FlatVector(deltaX, deltaY);
 			FlatVector direction = FlatMath.normalize(cachedDirection);
 			FlatVector velocity  = FlatVector.multiply(direction, speed);
 			bodyList.get(0).move(velocity);
