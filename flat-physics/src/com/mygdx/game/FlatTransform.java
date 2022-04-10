@@ -25,6 +25,8 @@ public class FlatTransform {
         this.y = v.getY();
         this.sin = (float) Math.sin(angle);
         this.cos = (float) Math.cos(angle);
+        System.out.println(angle);
+        System.out.println(this.cos);
     }
 
 

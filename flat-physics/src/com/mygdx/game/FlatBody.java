@@ -36,6 +36,9 @@ public class FlatBody {
     private int             shapeType;
 
     private FlatBody() {
+        this.linearVelocity = new FlatVector(0f, 0f);
+        this.rotation = 0f;
+        this.rotationalVelocity = 0f;
     }
 
     private FlatBody(FlatVector position, FlatVector linearVelocity, float rotation, float rotationalVelocity,
@@ -136,6 +139,12 @@ public class FlatBody {
         return this.transformedVertices;
     }
 
+    public void step(float time) {
+        this.position.add(this.linearVelocity.multiply(time));
+        this.rotation += (this.rotationalVelocity * time);
+        this.doesVerticesRequireUpdate = true;
+    }
+
     public void move(FlatVector amount) {
         this.position.add(amount);
         this.doesVerticesRequireUpdate = true;
@@ -146,13 +155,22 @@ public class FlatBody {
         this.doesVerticesRequireUpdate = true;
     }
 
+    /**
+     * rotate by angle
+     * @param amount the amount of angle in degree to rotate by.
+     */
     public void rotate(float amount) {
-        this.rotation += amount;
+        this.rotation -= amount;
+        this.rotation %= 360f;
         this.doesVerticesRequireUpdate = true;
     }
 
+    /**
+     * rotate to angle
+     * @param rotation the amount of angle in degree to rotate to.
+     */
     public void rotateTo(float rotation) {
-        this.rotation = rotation;
+        this.rotation = -rotation;
         this.doesVerticesRequireUpdate = true;
     }
 

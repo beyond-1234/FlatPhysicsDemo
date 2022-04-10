@@ -46,6 +46,7 @@ public class Collisions {
 
         // calculate normal and depth
         int closestPointIndex = Collisions.findClosestPointOnPolygon(circleCenter, vertices);
+        if(closestPointIndex == -1) return new CollisionResult(false);
         FlatVector cp = vertices[closestPointIndex];
 
         axis = FlatVector.subtract(cp, circleCenter);
