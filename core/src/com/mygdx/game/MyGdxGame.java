@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mygdx.game.callback.CollisionCallback;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.ArrayList;
@@ -145,7 +146,13 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 	private void collide() {
-		this.world.step();
+		this.world.step(new CollisionCallback() {
+			@Override
+			public void collide(int indexA, int indexB) {
+				outlineColorList.get(indexA).set(Color.RED);
+				outlineColorList.get(indexB).set(Color.RED);
+			}
+		});
 	}
 
 	private void collide(boolean useThis) {

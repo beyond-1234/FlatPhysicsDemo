@@ -1,5 +1,7 @@
 package com.mygdx.game;
 
+import com.mygdx.game.callback.CollisionCallback;
+
 import javax.security.auth.callback.Callback;
 import java.util.ArrayList;
 
@@ -49,7 +51,7 @@ public class FlatWorld {
         return null;
     }
 
-    public void step() {
+    public void step(CollisionCallback callback) {
 
         // move step
         for (FlatBody body : this.bodyList) {
@@ -70,6 +72,7 @@ public class FlatWorld {
                 if (collisionResult.isIntersect) {
                     bodyB.move(collisionResult.normal.multiply(collisionResult.depth).divide(2f));
                     bodyA.move(collisionResult.normal.negative());
+                    callback.collide(i, j);
                 }
             }
         }
