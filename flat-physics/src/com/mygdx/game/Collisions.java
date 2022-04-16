@@ -81,6 +81,73 @@ public class Collisions {
         return new CollisionResult(true, normal, depth);
     }
 
+    public static CollisionResult detectIntersectCirclePolygon(
+            FlatVector circleCenter, float radius, FlatVector polygonCenter, FlatVector[] vertices) {
+
+        FlatVector normal = FlatVector.getZero();
+        float depth = Float.MAX_VALUE;
+        FlatVector axis = null;
+        // find overlap in projections
+        for (int i = 0; i < vertices.length; i++) {
+            FlatVector va = vertices[i];
+            FlatVector vb = vertices[(i + 1) % vertices.length];
+
+            FlatVector edge = FlatMath.subtract(vb, va);
+            // -y means normal direction is pointing outside of polygon
+            axis = new FlatVector(-edge.getY(), edge.getX());
+            axis = FlatMath.normalize(axis);
+
+            PolygonProjection projectionP = projectPolygon(vertices, axis);
+            PolygonProjection projectionC = projectCircle(circleCenter, radius, axis);
+
+            // detect overlap, if not return false
+            if (projectionP.min >= projectionC.max || projectionC.min >= projectionP.max) {
+                return new CollisionResult(false);
+            }
+
+            float axisDepth = Math.min(projectionC.max - projectionP.min, projectionP.max - projectionC.min);
+
+            if(axisDepth < depth) {
+                depth = axisDepth;
+                normal = axis;
+            }
+        }
+
+        // calculate normal and depth
+        int closestPointIndex = Collisions.findClosestPointOnPolygon(circleCenter, vertices);
+        if(closestPointIndex == -1) return new CollisionResult(false);
+        FlatVector cp = vertices[closestPointIndex];
+
+//        axis = FlatMath.subtract(cp, circleCenter);
+//        axis = FlatMath.normalize(axis);
+
+        PolygonProjection projectionP = projectPolygon(vertices, axis);
+        PolygonProjection projectionC = projectCircle(circleCenter, radius, axis);
+
+        // detect overlap, if not return false
+        if (projectionP.min >= projectionC.max || projectionC.min >= projectionP.max) {
+            return new CollisionResult(false);
+        }
+
+        float axisDepth = Math.min(projectionC.max - projectionP.min, projectionP.max - projectionC.min);
+
+        if (axisDepth < depth) {
+            depth = axisDepth;
+            normal = axis;
+        }
+
+        depth /= FlatMath.length(normal);
+        normal = FlatMath.normalize(normal);
+
+        FlatVector direction = FlatMath.subtract(polygonCenter, circleCenter);
+        if (FlatMath.dot(direction, normal) < 0f) {
+            normal = FlatMath.negative(normal);
+        }
+
+        return new CollisionResult(true, normal, depth);
+    }
+
+
     private static int findClosestPointOnPolygon(FlatVector targetPoint, FlatVector[] vertices) {
         int index = -1;
         float minDistance = Float.MAX_VALUE;
@@ -183,6 +250,75 @@ public class Collisions {
 
         return new CollisionResult(true, normal, depth);
     }
+
+    public static CollisionResult detectIntersectPolygons(FlatVector centerA, FlatVector[] verticesA, FlatVector centerB, FlatVector[] verticesB) {
+
+        FlatVector normal = FlatVector.getZero();
+        float depth = Float.MAX_VALUE;
+
+        for (int i = 0; i < verticesA.length; i++) {
+            FlatVector va = verticesA[i];
+            FlatVector vb = verticesA[(i + 1) % verticesA.length];
+
+            FlatVector edge = FlatMath.subtract(vb, va);
+            // -y means normal direction is pointing outside of polygon
+            FlatVector axis = new FlatVector(-edge.getY(), edge.getX());
+            axis = FlatMath.normalize(axis);
+
+            PolygonProjection projectionA = projectPolygon(verticesA, axis);
+            PolygonProjection projectionB = projectPolygon(verticesB, axis);
+
+            // detect overlap
+            if(projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
+                return new CollisionResult(false);
+            }
+
+            float axisDepth = Math.min(projectionB.max - projectionA.min, projectionA.max - projectionB.min);
+
+            if(axisDepth < depth) {
+                depth = axisDepth;
+                normal = axis;
+            }
+        }
+
+        for (int i = 0; i < verticesB.length; i++) {
+            FlatVector va = verticesB[i];
+            FlatVector vb = verticesB[(i + 1) % verticesB.length];
+
+            FlatVector edge = FlatMath.subtract(vb, va);
+            // -y means normal direction is pointing outside of polygon
+            FlatVector axis = new FlatVector(-edge.getY(), edge.getX());
+            axis = FlatMath.normalize(axis);
+
+            PolygonProjection projectionA = projectPolygon(verticesA, axis);
+            PolygonProjection projectionB = projectPolygon(verticesB, axis);
+
+            // detect overlap
+            if(projectionA.min >= projectionB.max || projectionB.min >= projectionA.max) {
+                return new CollisionResult(false);
+            }
+
+            float axisDepth = Math.min(projectionB.max - projectionA.min, projectionA.max - projectionB.min);
+
+            if(axisDepth < depth) {
+                depth = axisDepth;
+                normal = axis;
+            }
+
+        }
+
+//        depth /= FlatMath.length(normal);
+//        normal = FlatMath.normalize(normal);
+
+        FlatVector direction = FlatMath.subtract(centerB, centerA);
+
+        if(FlatMath.dot(direction, normal) < 0f) {
+            normal = FlatMath.negative(normal);
+        }
+
+        return new CollisionResult(true, normal, depth);
+    }
+
 
     private static FlatVector findArithmeticMean(FlatVector[] vertices) {
         float sumX = 0f;

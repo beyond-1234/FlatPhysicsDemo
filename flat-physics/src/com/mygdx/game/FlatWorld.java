@@ -138,7 +138,8 @@ public class FlatWorld {
 
 
     private Collisions.CollisionResult doCirclePolygonCollide(FlatBody circle, FlatBody polygon) {
-        return Collisions.detectIntersectCirclePolygon(circle.getPosition(), circle.getRadius(), polygon.getTransformedVertices());
+        return Collisions.detectIntersectCirclePolygon(circle.getPosition(), circle.getRadius(),
+                                                        polygon.getPosition(), polygon.getTransformedVertices());
     }
 
     private Collisions.CollisionResult doCirclesCollide(FlatBody bodyA, FlatBody bodyB) {
@@ -150,7 +151,7 @@ public class FlatWorld {
     private Collisions.CollisionResult doPolygonsCollide(FlatBody bodyA, FlatBody bodyB) {
         FlatVector[] verticesA = bodyA.getTransformedVertices();
         FlatVector[] verticesB = bodyB.getTransformedVertices();
-        return Collisions.detectIntersectPolygons(verticesA, verticesB);
+        return Collisions.detectIntersectPolygons(bodyA.getPosition(), verticesA, bodyB.getPosition(), verticesB);
     }
 
 }
