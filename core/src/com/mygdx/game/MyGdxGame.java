@@ -79,6 +79,8 @@ public class MyGdxGame extends ApplicationAdapter {
 //
 //		drawBoxList();
 
+		warpScreen();
+
 		batch.end();
 	}
 
@@ -251,6 +253,28 @@ public class MyGdxGame extends ApplicationAdapter {
 		for (int i = 0, j = 0; i < cachedVertices.length - 1 && j < vertices.length; i+=2, j++) {
 			cachedVertices[i] = vertices[j].getX();
 			cachedVertices[i + 1] = vertices[j].getY();
+		}
+	}
+
+	/**
+	 * keep objects inside the window
+	 */
+	private void warpScreen(){
+		float width = this.camera.viewportWidth;
+		float height = this.camera.viewportHeight;
+
+		float minX = this.camera.position.x - width / 2;
+		float maxX = this.camera.position.x + width / 2;
+		float minY = this.camera.position.y - height / 2;
+		float maxY = this.camera.position.y + height / 2;
+
+		for (int i = 0; i < this.world.getBodyCount(); i++) {
+			FlatBody body = this.world.getBody(i);
+
+			if(body.getPosition().getX() < minX) body.moveTo(FlatMath.add		(body.getPosition(), new FlatVector(width, 0f)));
+			if(body.getPosition().getX() > maxX) body.moveTo(FlatMath.subtract	(body.getPosition(), new FlatVector(width, 0f)));
+			if(body.getPosition().getY() < minY) body.moveTo(FlatMath.add		(body.getPosition(), new FlatVector(0f ,height)));
+			if(body.getPosition().getY() > maxY) body.moveTo(FlatMath.subtract	(body.getPosition(), new FlatVector(0f, height)));
 		}
 	}
 
