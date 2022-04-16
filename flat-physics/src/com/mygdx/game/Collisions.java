@@ -24,7 +24,7 @@ public class Collisions {
             FlatVector va = vertices[i];
             FlatVector vb = vertices[(i + 1) % vertices.length];
 
-            FlatVector edge = FlatVector.subtract(vb, va);
+            FlatVector edge = FlatMath.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
             axis = new FlatVector(-edge.getY(), edge.getX());
 
@@ -49,7 +49,7 @@ public class Collisions {
         if(closestPointIndex == -1) return new CollisionResult(false);
         FlatVector cp = vertices[closestPointIndex];
 
-        axis = FlatVector.subtract(cp, circleCenter);
+        axis = FlatMath.subtract(cp, circleCenter);
 
         PolygonProjection projectionP = projectPolygon(vertices, axis);
         PolygonProjection projectionC = projectCircle(circleCenter, radius, axis);
@@ -71,9 +71,9 @@ public class Collisions {
 
         // make sure the normal is always pointing from the first one to the second
         FlatVector polygonCenter = findArithmeticMean(vertices);
-        FlatVector direction = FlatVector.subtract(polygonCenter, circleCenter);
+        FlatVector direction = FlatMath.subtract(polygonCenter, circleCenter);
         if (FlatMath.dot(direction, normal) < 0f) {
-            normal.negative();
+            normal = FlatMath.negative(normal);
         }
 
         return new CollisionResult(true, normal, depth);
@@ -119,7 +119,7 @@ public class Collisions {
             FlatVector va = verticesA[i];
             FlatVector vb = verticesA[(i + 1) % verticesA.length];
 
-            FlatVector edge = FlatVector.subtract(vb, va);
+            FlatVector edge = FlatMath.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
             FlatVector axis = new FlatVector(-edge.getY(), edge.getX());
 
@@ -143,7 +143,7 @@ public class Collisions {
             FlatVector va = verticesB[i];
             FlatVector vb = verticesB[(i + 1) % verticesB.length];
 
-            FlatVector edge = FlatVector.subtract(vb, va);
+            FlatVector edge = FlatMath.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
             FlatVector axis = new FlatVector(-edge.getY(), edge.getX());
 
@@ -171,10 +171,10 @@ public class Collisions {
         FlatVector centerA = findArithmeticMean(verticesA);
         FlatVector centerB = findArithmeticMean(verticesB);
 
-        FlatVector direction = FlatVector.subtract(centerB, centerA);
+        FlatVector direction = FlatMath.subtract(centerB, centerA);
 
         if(FlatMath.dot(direction, normal) < 0f) {
-            normal.negative();
+            normal = FlatMath.negative(normal);
         }
 
         return new CollisionResult(true, normal, depth);
@@ -202,10 +202,10 @@ public class Collisions {
      */
     private static PolygonProjection projectCircle(FlatVector center, float radius, FlatVector axis) {
         FlatVector direction = FlatMath.normalize(axis);
-        FlatVector directionAndRadius = FlatVector.multiply(direction, radius);
+        FlatVector directionAndRadius = FlatMath.multiply(direction, radius);
 
-        float min = FlatMath.dot(FlatVector.add(center, directionAndRadius), axis);
-        float max = FlatMath.dot(FlatVector.subtract(center, directionAndRadius), axis);
+        float min = FlatMath.dot(FlatMath.add(center, directionAndRadius), axis);
+        float max = FlatMath.dot(FlatMath.subtract(center, directionAndRadius), axis);
 
         if (min > max) {
             float t = min;
@@ -247,7 +247,7 @@ public class Collisions {
             return new CollisionResult(false);
 
         return new CollisionResult(true,
-                FlatMath.normalize(FlatVector.subtract(centerB, centerA)),
+                FlatMath.normalize(FlatMath.subtract(centerB, centerA)),
                 radii - distance);
     }
 

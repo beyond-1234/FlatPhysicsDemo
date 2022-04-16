@@ -12,6 +12,8 @@ public class FlatBody {
     private float           rotation;
     private float           rotationalVelocity;
 
+    private FlatVector      force;
+
     private float           density;
     // unit is kg
     private float           mass;
@@ -39,6 +41,7 @@ public class FlatBody {
         this.linearVelocity = new FlatVector(0f, 0f);
         this.rotation = 0f;
         this.rotationalVelocity = 0f;
+        this.force = FlatVector.getZero();
     }
 
     private FlatBody(FlatVector position, FlatVector linearVelocity, float rotation, float rotationalVelocity,
@@ -140,13 +143,18 @@ public class FlatBody {
     }
 
     public void step(float time) {
-        this.position.add(this.linearVelocity.multiply(time));
+        this.linearVelocity = FlatMath.add(this.linearVelocity, FlatMath.multiply(this.force, time));
+
+        this.position = FlatMath.add(this.position, FlatMath.multiply(this.linearVelocity, time));
         this.rotation += (this.rotationalVelocity * time);
+
+        this.force = FlatVector.getZero();
+
         this.doesVerticesRequireUpdate = true;
     }
 
     public void move(FlatVector amount) {
-        this.position.add(amount);
+        this.position = FlatMath.add(this.position, amount);
         this.doesVerticesRequireUpdate = true;
     }
 
@@ -258,6 +266,10 @@ public class FlatBody {
 
     public int getShapeType() {
         return shapeType;
+    }
+
+    public void setForce(FlatVector force) {
+        this.force = force;
     }
 
     @Override

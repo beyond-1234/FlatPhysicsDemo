@@ -138,7 +138,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		if(deltaX != 0f || deltaY != 0f) {
 			cachedDirection = new FlatVector(deltaX, deltaY);
 			FlatVector direction = FlatMath.normalize(cachedDirection);
-			FlatVector velocity  = FlatVector.multiply(direction, speed);
+			FlatVector velocity  = FlatMath.multiply(direction, speed);
 			world.getBody(0).move(velocity);
 		}
 
@@ -155,7 +155,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		});
 	}
 
-	private void collide(boolean useThis) {
+	private void collide(boolean oldMethod) {
 
 		int count = this.world.getBodyCount();
 
@@ -179,7 +179,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 						// make sure normal is pointing from the first to the second
 						if(collisionResult.isIntersect) {
-							collisionResult.normal.negative();
+							collisionResult.normal = FlatMath.negative(collisionResult.normal);
 						}
 					}else {
 						collisionResult = doCirclePolygonCollide(bodyA, bodyB);
@@ -190,8 +190,9 @@ public class MyGdxGame extends ApplicationAdapter {
 					outlineColorList.get(i).set(Color.RED);
 					outlineColorList.get(j).set(Color.RED);
 
-					bodyB.move(collisionResult.normal.multiply(collisionResult.depth).divide(2f));
-					bodyA.move(collisionResult.normal.negative());
+					FlatVector force = FlatMath.multiply(collisionResult.normal, collisionResult.depth);
+					bodyB.move(FlatMath.divide(force, 2f));
+					bodyA.move(FlatMath.divide(FlatMath.negative(force), 2f));
 				}
 
 			}

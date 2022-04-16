@@ -2,6 +2,26 @@ package com.mygdx.game;
 
 public class FlatMath {
 
+    public static FlatVector add(FlatVector a, FlatVector b) {
+        return new FlatVector(a.getX() + b.getX(), a.getY() + b.getY());
+    }
+
+    public static FlatVector subtract(FlatVector a, FlatVector b) {
+        return new FlatVector(a.getX() - b.getX(), a.getY() - b.getY());
+    }
+
+    public static FlatVector negative(FlatVector a) {
+        return new FlatVector(-a.getX(), -a.getY());
+    }
+
+    public static FlatVector multiply(FlatVector a, float scale) {
+        return new FlatVector(a.getX() * scale, a.getY() * scale);
+    }
+
+    public static FlatVector divide(FlatVector a, float scale) {
+        return new FlatVector(a.getX() / scale, a.getY() / scale);
+    }
+
     public static float clamp(float value, float min, float max) {
         if(min == max)  return min;
         if(min > max)   throw new IllegalArgumentException("min is greater then max");

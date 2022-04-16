@@ -23,35 +23,35 @@ public class FlatVector {
         return Zero;
     }
 
-    public FlatVector add(FlatVector b) {
-        this.x += b.x;
-        this.y += b.y;
-        return this;
-    }
-
-    public FlatVector subtract(FlatVector b) {
-        this.x -= b.x;
-        this.y -= b.y;
-        return this;
-    }
-
-    public FlatVector negative() {
-        this.x = -this.x;
-        this.y = -this.y;
-        return this;
-    }
-
-    public FlatVector multiply(float scale) {
-        this.x *= scale;
-        this.y *= scale;
-        return this;
-    }
-
-    public FlatVector divide(float scale) {
-        this.x /= scale;
-        this.y /= scale;
-        return this;
-    }
+//    public FlatVector add(FlatVector b) {
+//        this.x += b.x;
+//        this.y += b.y;
+//        return this;
+//    }
+//
+//    public FlatVector subtract(FlatVector b) {
+//        this.x -= b.x;
+//        this.y -= b.y;
+//        return this;
+//    }
+//
+//    public FlatVector negative() {
+//        this.x = -this.x;
+//        this.y = -this.y;
+//        return this;
+//    }
+//
+//    public FlatVector multiply(float scale) {
+//        this.x *= scale;
+//        this.y *= scale;
+//        return this;
+//    }
+//
+//    public FlatVector divide(float scale) {
+//        this.x /= scale;
+//        this.y /= scale;
+//        return this;
+//    }
 
     public FlatVector transform(FlatTransform t) {
         // rotation first, then translate
@@ -75,25 +75,6 @@ public class FlatVector {
 //        this.y = y;
 //    }
 
-    public static FlatVector add(FlatVector a, FlatVector b) {
-        return new FlatVector(a.x + b.x, a.y + b.y);
-    }
-
-    public static FlatVector subtract(FlatVector a, FlatVector b) {
-        return new FlatVector(a.x - b.x, a.y - b.y);
-    }
-
-    public static FlatVector negative(FlatVector a) {
-        return new FlatVector(-a.x, -a.y);
-    }
-
-    public static FlatVector multiply(FlatVector a, float scale) {
-        return new FlatVector(a.x * scale, a.y * scale);
-    }
-
-    public static FlatVector divide(FlatVector a, float scale) {
-        return new FlatVector(a.x / scale, a.y / scale);
-    }
 
     public static FlatVector transform(FlatVector v, FlatTransform t) {
         // rotation first, then translate

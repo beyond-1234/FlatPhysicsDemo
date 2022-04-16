@@ -70,8 +70,9 @@ public class FlatWorld {
                 collisionResult = getCollisionResult(bodyA, bodyB);
 
                 if (collisionResult.isIntersect) {
-                    bodyB.move(collisionResult.normal.multiply(collisionResult.depth).divide(2f));
-                    bodyA.move(collisionResult.normal.negative());
+                    FlatVector force = FlatMath.multiply(collisionResult.normal, collisionResult.depth);
+                    bodyB.move(FlatMath.divide(force, 2f));
+                    bodyA.move(FlatMath.divide(FlatMath.negative(force), 2f));
                     callback.collide(i, j);
                 }
             }
@@ -92,7 +93,7 @@ public class FlatWorld {
 
                 // make sure normal is pointing from the first to the second
                 if (collisionResult.isIntersect) {
-                    collisionResult.normal.negative();
+                    collisionResult.normal = FlatMath.negative(collisionResult.normal);
                 }
             } else {
                 collisionResult = doCirclePolygonCollide(bodyA, bodyB);
