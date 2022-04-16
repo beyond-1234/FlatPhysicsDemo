@@ -29,7 +29,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	float deltaX = 0f;
 	float deltaY = 0f;
-	float forceMagnitude  = 48f;
+	float forceMagnitude  = 4f;
 
 	FlatWorld world;
 
@@ -50,11 +50,11 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		initializeDrawer();
 
-		initializeRandomList();
+		initializeList();
 
-//		initializeCircleList();
-
-//		initializeBoxList();
+		world.addBody(FlatBody.createBoxBody(totalWidth - 100f, 50f, new FlatVector(totalWidth / 2, 100f-totalHeight), 2f, true, 1f));
+		outlineColorList.add(new Color(Color.WHITE));
+		colorList.add(new Color(Color.GRAY));
 	}
 
 
@@ -63,6 +63,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		ScreenUtils.clear(0, 0.3f, 0.3f, 1);
 		batch.begin();
 		camera.update();
+
+		addObjectByClick();
 
 		reset();
 
@@ -79,7 +81,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	private void reset() {
 		for (int i = 0; i < this.world.getBodyCount(); i++) {
-			outlineColorList.get(i).set(this.world.getBody(i).isStatic() ? new Color(Color.BLACK) : new Color(Color.WHITE));
+			outlineColorList.get(i).set(new Color(Color.WHITE));
 		}
 	}
 
@@ -108,22 +110,41 @@ public class MyGdxGame extends ApplicationAdapter {
 		world = new FlatWorld();
 	}
 
-	private void initializeRandomList() {
-		initializeList();
-
+	private void initializeRandomObjects() {
 		for (int i = 0; i < 10; i++) {
 			FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
 			boolean randomStatic = !(Math.random() > 0.4);
 			if (Math.random() > 0.5) {
-				world.addBody(FlatBody.createCircleBody(20f, center, 2f, randomStatic, 1f));
+				world.addBody(FlatBody.createCircleBody(20f, center, 0.5f, randomStatic, 1f));
 			}else {
-				world.addBody(FlatBody.createBoxBody(40f, 40f, center, 2f, randomStatic, 1f));
+				world.addBody(FlatBody.createBoxBody(40f, 40f, center, 0.5f, randomStatic, 1f));
 			}
 //			System.out.println(bodyList.get(i));
 			outlineColorList.add(randomStatic ? new Color(Color.BLACK) : new Color(Color.WHITE));
 			colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
 		}
 	}
+
+	private void addObjectByClick() {
+//		initializeList();
+
+//		FlatVector center = new FlatVector(Gdx.input.getX(), -Gdx.input.getY());
+		float random = (float) Math.random();
+		random = random < 0.2f ? 0.3f : random;
+		float random2 = (float) Math.random();
+		random2 = random2 < 0.2f ? 0.3f : random2;
+		if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+			FlatVector center = new FlatVector(Gdx.input.getX(), -Gdx.input.getY());
+			world.addBody(FlatBody.createCircleBody(40f * random, center, 2f, false, 1f));
+		}else if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+			FlatVector center = new FlatVector(Gdx.input.getX(), -Gdx.input.getY());
+			world.addBody(FlatBody.createBoxBody(80f * random, 80f * random2, center, 2f, false, 1f));
+		}
+		colorList.add(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1));
+		outlineColorList.add(new Color(Color.WHITE));
+	}
+
+
 
 	private void move(float deltaX, float deltaY, float forceMagnitude) {
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) 	deltaX--;

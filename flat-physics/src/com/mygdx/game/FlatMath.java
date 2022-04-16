@@ -45,6 +45,7 @@ public class FlatMath {
 
     public static FlatVector normalize(FlatVector v) {
         float len = length(v);
+        if(len == 0) return new FlatVector(0f, 0f);
         return new FlatVector(v.getX() / len, v.getY() / len);
     }
 

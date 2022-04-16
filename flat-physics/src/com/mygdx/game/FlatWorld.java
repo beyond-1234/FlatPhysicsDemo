@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class FlatWorld {
     // all values are set based on some real values
     public static final float MIN_BODY_SIZE = 0.01f * 0.01f;
-    public static final float MAX_BODY_SIZE = 64f * 64f;
+    public static final float MAX_BODY_SIZE = 2000f * 2000f;
     public static final float MIN_DENSITY = 0.5f; // g/cm^3
     public static final float MAX_DENSITY = 21.4f;
 
@@ -17,7 +17,7 @@ public class FlatWorld {
 
     public FlatWorld() {
         this.bodyList = new ArrayList<>();
-        this.gravity = new FlatVector(0f, 9.8f);
+        this.gravity = new FlatVector(0f, -0.98f);
     }
 
     public FlatWorld(ArrayList<FlatBody> bodyList, FlatVector gravity) {
@@ -55,7 +55,7 @@ public class FlatWorld {
 
         // move step
         for (FlatBody body : this.bodyList) {
-            body.step(2f);
+            body.step(0.5f, this.gravity);
         }
 
         // collision step

@@ -146,7 +146,8 @@ public class FlatBody {
         return this.transformedVertices;
     }
 
-    public void step(float time) {
+    public void step(float time, FlatVector gravity) {
+
         FlatVector acceleration = FlatMath.divide(this.force, this.mass);
         this.linearVelocity = FlatMath.add(this.linearVelocity, FlatMath.multiply(acceleration, time));
 
@@ -156,6 +157,10 @@ public class FlatBody {
         this.force = FlatVector.getZero();
 
         this.doesVerticesRequireUpdate = true;
+
+        if(this.isStatic) return;
+
+        this.linearVelocity = FlatMath.add(this.linearVelocity, FlatMath.multiply(gravity, time));
     }
 
     public void move(FlatVector amount) {
@@ -204,7 +209,6 @@ public class FlatBody {
         if(density > FlatWorld.MAX_DENSITY) {
             throw new IllegalArgumentException("density is too large, max density is " + FlatWorld.MAX_DENSITY);
         }
-
         body = new FlatBody(position, density, mass, restitution, area, isStatic, shapeType);
         return body;
     }
