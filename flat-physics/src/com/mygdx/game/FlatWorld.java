@@ -55,7 +55,7 @@ public class FlatWorld {
 
         // move step
         for (FlatBody body : this.bodyList) {
-            body.step(1f);
+            body.step(2f);
         }
 
         // collision step
@@ -67,13 +67,20 @@ public class FlatWorld {
                 FlatBody bodyB = this.bodyList.get(j);
                 Collisions.CollisionResult collisionResult;
 
+                if(bodyA.isStatic() && bodyB.isStatic()) continue;
+
                 collisionResult = getCollisionResult(bodyA, bodyB);
 
                 if (collisionResult.isIntersect) {
                     FlatVector force = FlatMath.multiply(collisionResult.normal, collisionResult.depth);
-                    bodyA.move(FlatMath.divide(force, -2f));
-                    bodyB.move(FlatMath.divide(force, 2f));
-
+                    if(bodyA.isStatic())
+                        bodyB.move(FlatMath.divide(force, 2f));
+                    else if(bodyB.isStatic())
+                        bodyA.move(FlatMath.divide(force,  -2f));
+                    else {
+                        bodyA.move(FlatMath.divide(force, -2f));
+                        bodyB.move(FlatMath.divide(force, 2f));
+                    }
                     resolveCollision(bodyA, bodyB, collisionResult.normal);
 
                     callback.collide(i, j);

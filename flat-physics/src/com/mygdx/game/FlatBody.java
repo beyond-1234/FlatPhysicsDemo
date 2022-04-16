@@ -301,6 +301,10 @@ public class FlatBody {
         return invMass;
     }
 
+    public boolean isStatic() {
+        return isStatic;
+    }
+
     @Override
     public String toString() {
         return "FlatBody{" +
