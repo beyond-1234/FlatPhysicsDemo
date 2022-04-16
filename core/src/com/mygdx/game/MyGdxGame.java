@@ -27,6 +27,10 @@ public class MyGdxGame extends ApplicationAdapter {
 	float totalHeight;
 	float totalWidth;
 
+	float deltaX = 0f;
+	float deltaY = 0f;
+	float forceMagnitude  = 48f;
+
 	FlatWorld world;
 
 	ArrayList<Color> colorList;
@@ -62,22 +66,11 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		reset();
 
-		float deltaX = 0f;
-		float deltaY = 0f;
-		float forceMagnitude  = 48f;
-
 		move(deltaX, deltaY, forceMagnitude);
 
 		collide();
 
 		drawList();
-//		drawCircleList();
-
-//		boxMove(deltaX, deltaY, speed);
-//
-//		boxCollide();
-//
-//		drawBoxList();
 
 		warpScreen();
 
