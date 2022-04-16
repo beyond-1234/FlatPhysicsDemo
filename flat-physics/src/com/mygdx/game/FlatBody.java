@@ -17,6 +17,8 @@ public class FlatBody {
     private float           density;
     // unit is kg
     private float           mass;
+    // 1 / mass
+    private float           invMass;
     private float           restitution;
     private float           area;
 
@@ -55,6 +57,7 @@ public class FlatBody {
         this.rotationalVelocity = rotationalVelocity;
         this.density = density;
         this.mass = mass;
+        this.invMass = isStatic ? 0f : 1f / mass;
         this.restitution = restitution;
         this.area = area;
         this.isStatic = isStatic;
@@ -71,6 +74,7 @@ public class FlatBody {
         this.position = position;
         this.density = density;
         this.mass = mass;
+        this.invMass = isStatic ? 0f : 1f / mass;
         this.restitution = restitution;
         this.area = area;
         this.isStatic = isStatic;
@@ -291,6 +295,10 @@ public class FlatBody {
 
     public float getMass() {
         return mass;
+    }
+
+    public float getInvMass() {
+        return invMass;
     }
 
     @Override

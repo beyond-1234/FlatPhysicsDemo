@@ -91,13 +91,18 @@ public class FlatWorld {
      */
     public void resolveCollision(FlatBody bodyA, FlatBody bodyB, FlatVector normal) {
         FlatVector relativeVelocity = FlatMath.subtract(bodyB.getLinearVelocity(), bodyA.getLinearVelocity());
+
+        // if forces of two objects towards opposite direction, then don't need to calculate collision
+        if(FlatMath.dot(relativeVelocity, normal) > 0f) return;
+
         float e = Math.min(bodyA.getRestitution(), bodyB.getRestitution());
         float j = -(1f + e) * FlatMath.dot(relativeVelocity, normal);
         // normal dot normal is ignored because normal is already normalized and result is 1
-        j /= (1f / bodyA.getMass()) + (1f / bodyB.getMass());
+        j /= bodyA.getInvMass() + bodyB.getInvMass();
 
-        bodyA.setLinearVelocity(FlatMath.subtract(bodyA.getLinearVelocity(), FlatMath.multiply(normal, j / bodyA.getMass())));
-        bodyB.setLinearVelocity(FlatMath.add(bodyB.getLinearVelocity(), FlatMath.multiply(normal, j / bodyB.getMass())));
+        FlatVector impulse = FlatMath.multiply(normal, j);
+        bodyA.setLinearVelocity(FlatMath.subtract(bodyA.getLinearVelocity(), FlatMath.multiply(impulse, bodyA.getInvMass())));
+        bodyB.setLinearVelocity(FlatMath.add(bodyB.getLinearVelocity(), FlatMath.multiply(impulse, bodyB.getInvMass())));
     }
 
 
