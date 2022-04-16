@@ -272,6 +272,26 @@ public class FlatBody {
         this.force = force;
     }
 
+    public FlatVector getLinearVelocity() {
+        return linearVelocity;
+    }
+
+    public void setLinearVelocity(FlatVector linearVelocity) {
+        this.linearVelocity = linearVelocity;
+    }
+
+    public float getRestitution() {
+        return restitution;
+    }
+
+    public void setRestitution(float restitution) {
+        this.restitution = restitution;
+    }
+
+    public float getMass() {
+        return mass;
+    }
+
     @Override
     public String toString() {
         return "FlatBody{" +

@@ -64,9 +64,9 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		float deltaX = 0f;
 		float deltaY = 0f;
-		float speed  = 8f;
+		float forceMagnitude  = 5f;
 
-		move(deltaX, deltaY, speed);
+		move(deltaX, deltaY, forceMagnitude);
 
 		collide();
 
@@ -119,9 +119,9 @@ public class MyGdxGame extends ApplicationAdapter {
 		for (int i = 0; i < 10; i++) {
 			FlatVector center = new FlatVector( (float) Math.random() * totalWidth, (float) Math.random() * totalHeight);
 			if (Math.random() > 0.5) {
-				world.addBody(FlatBody.createCircleBody(20f, center, 2f, false, 0.5f));
+				world.addBody(FlatBody.createCircleBody(20f, center, 2f, false, 1f));
 			}else {
-				world.addBody(FlatBody.createBoxBody(40f, 40f, center, 2f, false, 0.5f));
+				world.addBody(FlatBody.createBoxBody(40f, 40f, center, 2f, false, 1f));
 			}
 //			System.out.println(bodyList.get(i));
 			outlineColorList.add(new Color(Color.WHITE));
@@ -129,17 +129,16 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 	}
 
-	private void move(float deltaX, float deltaY, float speed) {
+	private void move(float deltaX, float deltaY, float forceMagnitude) {
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) 	deltaX--;
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) 	deltaX++;
 		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) 	deltaY--;
 		if(Gdx.input.isKeyPressed(Input.Keys.UP)) 		deltaY++;
 
 		if(deltaX != 0f || deltaY != 0f) {
-			cachedDirection = new FlatVector(deltaX, deltaY);
-			FlatVector direction = FlatMath.normalize(cachedDirection);
-			FlatVector velocity  = FlatMath.multiply(direction, speed);
-			world.getBody(0).move(velocity);
+			FlatVector direction = FlatMath.normalize(new FlatVector(deltaX, deltaY));
+			FlatVector force	 = FlatMath.multiply(direction, forceMagnitude);
+			world.getBody(0).setForce(force);
 		}
 
 		if(Gdx.input.isKeyPressed(Input.Keys.R)) world.getBody(0).rotate(10f);
@@ -155,6 +154,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		});
 	}
 
+	@Deprecated
 	private void collide(boolean oldMethod) {
 
 		int count = this.world.getBodyCount();

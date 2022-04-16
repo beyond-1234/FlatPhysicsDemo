@@ -55,7 +55,7 @@ public class FlatWorld {
 
         // move step
         for (FlatBody body : this.bodyList) {
-            body.step(1f);
+            body.step(0.15f);
         }
 
         // collision step
@@ -71,13 +71,35 @@ public class FlatWorld {
 
                 if (collisionResult.isIntersect) {
                     FlatVector force = FlatMath.multiply(collisionResult.normal, collisionResult.depth);
+                    bodyA.move(FlatMath.divide(force, -2f));
                     bodyB.move(FlatMath.divide(force, 2f));
-                    bodyA.move(FlatMath.divide(FlatMath.negative(force), 2f));
+
+                    resolveCollision(bodyA, bodyB, collisionResult.normal);
+
                     callback.collide(i, j);
                 }
             }
         }
     }
+
+    /**
+     * add impulses to collided objects
+     * make them react realistically to each other
+     * @param bodyA
+     * @param bodyB
+     * @param normal
+     */
+    public void resolveCollision(FlatBody bodyA, FlatBody bodyB, FlatVector normal) {
+        FlatVector relativeVelocity = FlatMath.subtract(bodyB.getLinearVelocity(), bodyA.getLinearVelocity());
+        float e = Math.min(bodyA.getRestitution(), bodyB.getRestitution());
+        float j = -(1f + e) * FlatMath.dot(relativeVelocity, normal);
+        // normal dot normal is ignored because normal is already normalized and result is 1
+        j /= (1f / bodyA.getMass()) + (1f / bodyB.getMass());
+
+        bodyA.setLinearVelocity(FlatMath.subtract(bodyA.getLinearVelocity(), FlatMath.multiply(normal, j / bodyA.getMass())));
+        bodyB.setLinearVelocity(FlatMath.add(bodyB.getLinearVelocity(), FlatMath.multiply(normal, j / bodyB.getMass())));
+    }
+
 
     private Collisions.CollisionResult getCollisionResult(FlatBody bodyA, FlatBody bodyB) {
         Collisions.CollisionResult collisionResult;
