@@ -72,6 +72,7 @@ public class FlatWorld {
                 collisionResult = getCollisionResult(bodyA, bodyB);
 
                 if (collisionResult.isIntersect) {
+                    System.out.println(collisionResult.depth);
                     FlatVector force = FlatMath.multiply(collisionResult.normal, collisionResult.depth);
                     if(bodyA.isStatic())
                         bodyB.move(FlatMath.divide(force, 2f));

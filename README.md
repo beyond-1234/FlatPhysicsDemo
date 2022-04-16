@@ -15,3 +15,4 @@ Java implementation of a [physics engine tutorial using C#](https://www.bilibili
 ### todo
 
 - use second as time unit
+- collision result is too drastic

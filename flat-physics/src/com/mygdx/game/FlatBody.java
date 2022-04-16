@@ -148,8 +148,8 @@ public class FlatBody {
 
     public void step(float time, FlatVector gravity) {
 
-        FlatVector acceleration = FlatMath.divide(this.force, this.mass);
-        this.linearVelocity = FlatMath.add(this.linearVelocity, FlatMath.multiply(acceleration, time));
+//        FlatVector acceleration = FlatMath.divide(this.force, this.mass);
+//        this.linearVelocity = FlatMath.add(this.linearVelocity, FlatMath.multiply(acceleration, time));
 
         this.position = FlatMath.add(this.position, FlatMath.multiply(this.linearVelocity, time));
         this.rotation += (this.rotationalVelocity * time);

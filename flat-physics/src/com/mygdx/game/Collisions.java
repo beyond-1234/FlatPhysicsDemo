@@ -368,8 +368,7 @@ public class Collisions {
         float min = Float.MAX_VALUE;
         float max = Float.MIN_VALUE;
 
-        for (FlatVector v :
-                vertices) {
+        for (FlatVector v : vertices) {
             float projection = FlatMath.dot(v, axis);
 
             if (projection < min) min = projection;

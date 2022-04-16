@@ -171,67 +171,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		});
 	}
 
-	@Deprecated
-	private void collide(boolean oldMethod) {
-
-		int count = this.world.getBodyCount();
-
-		for (int i = 0; i < count - 1; i++) {
-
-			FlatBody bodyA = this.world.getBody(i);
-
-			for (int j = i + 1; j < count; j++) {
-				FlatBody bodyB = this.world.getBody(j);
-				Collisions.CollisionResult collisionResult;
-
-				if(bodyA.getShapeType() == bodyB.getShapeType()) {
-					if(FlatBody.BOX_SHAPE == bodyA.getShapeType()) {
-						collisionResult = doPolygonsCollide(bodyA, bodyB);
-					} else {
-						collisionResult = doCirclesCollide(bodyA, bodyB);
-					}
-				}else {
-					if(FlatBody.BOX_SHAPE == bodyA.getShapeType()) {
-						collisionResult = doCirclePolygonCollide(bodyB, bodyA);
-
-						// make sure normal is pointing from the first to the second
-						if(collisionResult.isIntersect) {
-							collisionResult.normal = FlatMath.negative(collisionResult.normal);
-						}
-					}else {
-						collisionResult = doCirclePolygonCollide(bodyA, bodyB);
-					}
-				}
-
-				if(collisionResult.isIntersect) {
-					outlineColorList.get(i).set(Color.RED);
-					outlineColorList.get(j).set(Color.RED);
-
-					FlatVector force = FlatMath.multiply(collisionResult.normal, collisionResult.depth);
-					bodyB.move(FlatMath.divide(force, 2f));
-					bodyA.move(FlatMath.divide(FlatMath.negative(force), 2f));
-				}
-
-			}
-		}
-	}
-
-	private Collisions.CollisionResult doCirclePolygonCollide(FlatBody circle, FlatBody polygon) {
-		return Collisions.detectIntersectCirclePolygon(circle.getPosition(), circle.getRadius(), polygon.getTransformedVertices());
-	}
-
-	private Collisions.CollisionResult doCirclesCollide(FlatBody bodyA, FlatBody bodyB) {
-		return Collisions.detectIntersectCircles(
-				bodyA.getPosition(), bodyA.getRadius(),
-				bodyB.getPosition(), bodyB.getRadius());
-	}
-
-	private Collisions.CollisionResult doPolygonsCollide(FlatBody bodyA, FlatBody bodyB) {
-		FlatVector[] verticesA = bodyA.getTransformedVertices();
-		FlatVector[] verticesB = bodyB.getTransformedVertices();
-		return Collisions.detectIntersectPolygons(verticesA, verticesB);
-	}
-
 	private void drawList() {
 		int count = this.world.getBodyCount();
 
