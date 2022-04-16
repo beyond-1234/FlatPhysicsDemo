@@ -55,7 +55,7 @@ public class FlatWorld {
 
         // move step
         for (FlatBody body : this.bodyList) {
-            body.step(0.15f);
+            body.step(1f);
         }
 
         // collision step

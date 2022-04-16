@@ -64,7 +64,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		float deltaX = 0f;
 		float deltaY = 0f;
-		float forceMagnitude  = 5f;
+		float forceMagnitude  = 48f;
 
 		move(deltaX, deltaY, forceMagnitude);
 

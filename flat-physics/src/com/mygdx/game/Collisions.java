@@ -27,6 +27,7 @@ public class Collisions {
             FlatVector edge = FlatMath.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
             axis = new FlatVector(-edge.getY(), edge.getX());
+            axis = FlatMath.normalize(axis);
 
             PolygonProjection projectionP = projectPolygon(vertices, axis);
             PolygonProjection projectionC = projectCircle(circleCenter, radius, axis);
@@ -49,7 +50,8 @@ public class Collisions {
         if(closestPointIndex == -1) return new CollisionResult(false);
         FlatVector cp = vertices[closestPointIndex];
 
-        axis = FlatMath.subtract(cp, circleCenter);
+//        axis = FlatMath.subtract(cp, circleCenter);
+//        axis = FlatMath.normalize(axis);
 
         PolygonProjection projectionP = projectPolygon(vertices, axis);
         PolygonProjection projectionC = projectCircle(circleCenter, radius, axis);
@@ -122,6 +124,7 @@ public class Collisions {
             FlatVector edge = FlatMath.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
             FlatVector axis = new FlatVector(-edge.getY(), edge.getX());
+            axis = FlatMath.normalize(axis);
 
             PolygonProjection projectionA = projectPolygon(verticesA, axis);
             PolygonProjection projectionB = projectPolygon(verticesB, axis);
@@ -146,6 +149,7 @@ public class Collisions {
             FlatVector edge = FlatMath.subtract(vb, va);
             // -y means normal direction is pointing outside of polygon
             FlatVector axis = new FlatVector(-edge.getY(), edge.getX());
+            axis = FlatMath.normalize(axis);
 
             PolygonProjection projectionA = projectPolygon(verticesA, axis);
             PolygonProjection projectionB = projectPolygon(verticesB, axis);
@@ -164,8 +168,8 @@ public class Collisions {
 
         }
 
-        depth /= FlatMath.length(normal);
-        normal = FlatMath.normalize(normal);
+//        depth /= FlatMath.length(normal);
+//        normal = FlatMath.normalize(normal);
 
         // make sure the normal is always pointing from the first one to the second
         FlatVector centerA = findArithmeticMean(verticesA);
