@@ -23,6 +23,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	Pixmap pixmap;
 	ShapeDrawer drawer;
 	float strokeWidth;
+	int iterations = 32;
 
 	float totalHeight;
 	float totalWidth;
@@ -162,12 +163,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 	private void collide() {
-		this.world.step(new CollisionCallback() {
-			@Override
-			public void collide(int indexA, int indexB) {
-				outlineColorList.get(indexA).set(Color.RED);
-				outlineColorList.get(indexB).set(Color.RED);
-			}
+		this.world.step(iterations, (indexA, indexB) -> {
+			outlineColorList.get(indexA).set(Color.RED);
+			outlineColorList.get(indexB).set(Color.RED);
 		});
 	}
 

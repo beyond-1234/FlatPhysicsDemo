@@ -146,10 +146,14 @@ public class FlatBody {
         return this.transformedVertices;
     }
 
-    public void step(float time, FlatVector gravity) {
+    public void handleForceAndVelocity(float time, FlatVector gravity, int iterations) {
+
+        if(this.isStatic) return;
 
 //        FlatVector acceleration = FlatMath.divide(this.force, this.mass);
 //        this.linearVelocity = FlatMath.add(this.linearVelocity, FlatMath.multiply(acceleration, time));
+
+        time /= iterations;
 
         this.position = FlatMath.add(this.position, FlatMath.multiply(this.linearVelocity, time));
         this.rotation += (this.rotationalVelocity * time);
@@ -157,8 +161,6 @@ public class FlatBody {
         this.force = FlatVector.getZero();
 
         this.doesVerticesRequireUpdate = true;
-
-        if(this.isStatic) return;
 
         this.linearVelocity = FlatMath.add(this.linearVelocity, FlatMath.multiply(gravity, time));
     }

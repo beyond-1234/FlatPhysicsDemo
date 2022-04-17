@@ -2,7 +2,6 @@ package com.mygdx.game;
 
 import com.mygdx.game.callback.CollisionCallback;
 
-import javax.security.auth.callback.Callback;
 import java.util.ArrayList;
 
 public class FlatWorld {
@@ -27,7 +26,7 @@ public class FlatWorld {
     }
 
     public int getBodyCount() {
-        if(this.bodyList == null) return 0;
+        if (this.bodyList == null) return 0;
         return this.bodyList.size();
     }
 
@@ -51,40 +50,42 @@ public class FlatWorld {
         return null;
     }
 
-    public void step(CollisionCallback callback) {
+    public void step(int iterations, CollisionCallback callback) {
 
-        // move step
-        for (FlatBody body : this.bodyList) {
-            body.step(0.5f, this.gravity);
-        }
+        for (int k = 0; k < iterations; k++) {
 
-        // collision step
-        for (int i = 0; i < this.bodyList.size() - 1; i++) {
+            // move step
+            for (FlatBody body : this.bodyList) {
+                body.handleForceAndVelocity(0.5f, this.gravity, iterations);
+            }
 
-            FlatBody bodyA = this.bodyList.get(i);
+            // collision step
+            for (int i = 0; i < this.bodyList.size() - 1; i++) {
 
-            for (int j = i + 1; j < this.bodyList.size(); j++) {
-                FlatBody bodyB = this.bodyList.get(j);
-                Collisions.CollisionResult collisionResult;
+                FlatBody bodyA = this.bodyList.get(i);
 
-                if(bodyA.isStatic() && bodyB.isStatic()) continue;
+                for (int j = i + 1; j < this.bodyList.size(); j++) {
+                    FlatBody bodyB = this.bodyList.get(j);
+                    Collisions.CollisionResult collisionResult;
 
-                collisionResult = getCollisionResult(bodyA, bodyB);
+                    if (bodyA.isStatic() && bodyB.isStatic()) continue;
 
-                if (collisionResult.isIntersect) {
-                    System.out.println(collisionResult.depth);
-                    FlatVector force = FlatMath.multiply(collisionResult.normal, collisionResult.depth);
-                    if(bodyA.isStatic())
-                        bodyB.move(FlatMath.divide(force, 2f));
-                    else if(bodyB.isStatic())
-                        bodyA.move(FlatMath.divide(force,  -2f));
-                    else {
-                        bodyA.move(FlatMath.divide(force, -2f));
-                        bodyB.move(FlatMath.divide(force, 2f));
+                    collisionResult = getCollisionResult(bodyA, bodyB);
+
+                    if (collisionResult.isIntersect) {
+                        FlatVector force = FlatMath.multiply(collisionResult.normal, collisionResult.depth);
+                        if (bodyA.isStatic())
+                            bodyB.move(FlatMath.divide(force, 2f));
+                        else if (bodyB.isStatic())
+                            bodyA.move(FlatMath.divide(force, -2f));
+                        else {
+                            bodyA.move(FlatMath.divide(force, -2f));
+                            bodyB.move(FlatMath.divide(force, 2f));
+                        }
+                        resolveCollision(bodyA, bodyB, collisionResult.normal);
+
+                        callback.collide(i, j);
                     }
-                    resolveCollision(bodyA, bodyB, collisionResult.normal);
-
-                    callback.collide(i, j);
                 }
             }
         }
@@ -93,6 +94,7 @@ public class FlatWorld {
     /**
      * add impulses to collided objects
      * make them react realistically to each other
+     *
      * @param bodyA
      * @param bodyB
      * @param normal
@@ -101,7 +103,7 @@ public class FlatWorld {
         FlatVector relativeVelocity = FlatMath.subtract(bodyB.getLinearVelocity(), bodyA.getLinearVelocity());
 
         // if forces of two objects towards opposite direction, then don't need to calculate collision
-        if(FlatMath.dot(relativeVelocity, normal) > 0f) return;
+        if (FlatMath.dot(relativeVelocity, normal) > 0f) return;
 
         float e = Math.min(bodyA.getRestitution(), bodyB.getRestitution());
         float j = -(1f + e) * FlatMath.dot(relativeVelocity, normal);
@@ -140,7 +142,7 @@ public class FlatWorld {
 
     private Collisions.CollisionResult doCirclePolygonCollide(FlatBody circle, FlatBody polygon) {
         return Collisions.detectIntersectCirclePolygon(circle.getPosition(), circle.getRadius(),
-                                                        polygon.getPosition(), polygon.getTransformedVertices());
+                polygon.getPosition(), polygon.getTransformedVertices());
     }
 
     private Collisions.CollisionResult doCirclesCollide(FlatBody bodyA, FlatBody bodyB) {
