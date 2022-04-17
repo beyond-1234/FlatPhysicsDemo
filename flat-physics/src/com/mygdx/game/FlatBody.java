@@ -29,6 +29,7 @@ public class FlatBody {
     private float           width;
     private float           height;
 
+    private FlatAABB        boundingBox;
     // rect and polygon need vertex info to detect collision
     private FlatVector[]    vertices;
     private FlatVector[]    transformedVertices;
@@ -237,6 +238,33 @@ public class FlatBody {
         body.doesVerticesRequireUpdate = true;
 
         return body;
+    }
+
+    public FlatAABB getBoundingBox() {
+        if(!doesVerticesRequireUpdate)
+            return this.boundingBox;
+
+        float minX = 0f;
+        float minY = 0f;
+        float maxX = 0f;
+        float maxY = 0f;
+
+        if(this.shapeType == BOX_SHAPE) {
+            FlatVector[] vertices = this.getTransformedVertices();
+            for (FlatVector vertex : vertices) {
+                if (vertex.getX() < minX) minX = vertex.getX();
+                if (vertex.getY() < minY) minY = vertex.getY();
+                if (vertex.getX() > maxX) maxX = vertex.getX();
+                if (vertex.getY() > maxY) maxY = vertex.getY();
+            }
+        }else if(this.shapeType == CIRCLE_SHAPE) {
+            minX = this.position.getX() - this.radius;
+            minY = this.position.getY() - this.radius;
+            maxX = this.position.getY() + this.radius;
+            maxY = this.position.getY() + this.radius;
+        }
+        this.boundingBox = new FlatAABB(minX, minY, maxX, maxY);
+        return boundingBox;
     }
 
     public FlatVector getPosition() {
